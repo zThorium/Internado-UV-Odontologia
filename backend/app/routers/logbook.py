@@ -33,6 +33,7 @@ from app.services.wellbeing import (
     get_student_wellbeing_history,
     resolve_alert,
 )
+from app.services.procedure_catalog import get_procedure_catalog, normalize_care_level
 
 router = APIRouter()
 
@@ -72,7 +73,9 @@ async def my_logbook_context(
         "cohort_id": str(assignment.cohort_id),
         "week_number": week_number,
         "week_start_date": str(week_start),
+        "care_level": normalize_care_level(assignment.care_level),
         "clinical_site": assignment.clinical_site,
+        "allowed_procedures": get_procedure_catalog(assignment.care_level),
     }
 
 

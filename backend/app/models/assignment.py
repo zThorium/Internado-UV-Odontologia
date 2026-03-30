@@ -7,6 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.session import Base
 
 
+CARE_LEVEL_VALUES = ("primary", "secondary", "tertiary")
+
+
 class Assignment(Base):
     __tablename__ = "assignments"
 
@@ -21,6 +24,12 @@ class Assignment(Base):
     )
     cohort_id: Mapped[uuid.UUID] = mapped_column(
         sa.UUID(as_uuid=True), sa.ForeignKey("cohorts.id"), nullable=False
+    )
+    care_level: Mapped[str] = mapped_column(
+        sa.Enum(*CARE_LEVEL_VALUES, name="care_level"),
+        nullable=False,
+        default="primary",
+        server_default="primary",
     )
     clinical_site: Mapped[str] = mapped_column(sa.String, nullable=False)
     start_date: Mapped[date] = mapped_column(sa.Date, nullable=False)

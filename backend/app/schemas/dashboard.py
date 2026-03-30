@@ -6,6 +6,9 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 from typing import Literal
 
 
+CareLevel = Literal["primary", "secondary", "tertiary"]
+
+
 class DashboardStats(BaseModel):
     total_students: int
     total_tutors: int
@@ -19,6 +22,7 @@ class AssignmentCreate(BaseModel):
     student_id: UUID
     tutor_id: UUID
     cohort_id: UUID
+    care_level: CareLevel = "primary"
     clinical_site: str
     start_date: date
     end_date: date
@@ -29,6 +33,7 @@ class AssignmentOut(BaseModel):
     student_id: UUID
     tutor_id: UUID
     cohort_id: UUID
+    care_level: CareLevel
     clinical_site: str
     start_date: date
     end_date: date
