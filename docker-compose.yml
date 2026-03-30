@@ -1,0 +1,105 @@
+# Docker Compose para desarrollo local — NO usar en producción
+
+services:
+  # ==========================================
+  # Base de datos principal
+  # ==========================================
+  db:
+    image: postgres:16-alpine
+    container_name: internado_uv_db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: internado_uv
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d internado_uv"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internado_network
+
+  # ==========================================
+  # IAM - Keycloak (FASE 1)
+  # ==========================================
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: internado_uv_keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/internado_uv
+      KC_DB_USERNAME: user
+      KC_DB_PASSWORD: password
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/realms/master/.well-known/openid-configuration || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - internado_network
+
+  # ==========================================
+  # Cache & Queue - Redis (FASE 3)
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: internado_uv_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - internado_network
+
+  # ==========================================
+  # Object Storage - MinIO (FASE 2)
+  # ==========================================
+  minio:
+    image: minio/minio:latest
+    container_name: internado_uv_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Web Console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - internado_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+networks:
+  internado_network:
+    driver: bridge

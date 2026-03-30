@@ -1,0 +1,37 @@
+---
+id: 00ddbd2a-2678-4f87-8bc2-018ae13438be
+---
+classDiagram
+  direction LR
+
+  class Publisher {
+    - subscribers: Subscriber[*]
+    - mainState
+    + subscribe(s: Subscriber): void
+    + unsubscribe(s: Subscriber): void
+    + notifySubscribers(): void
+    + mainBusinessLogic(): void
+  }
+
+  class Subscriber {
+    <<interface>>
+    + update(context: Publisher): void
+  }
+
+  class ConcreteSubscriberA {
+    + update(context: Publisher): void
+  }
+
+  class ConcreteSubscriberB {
+    + update(context: Publisher): void
+  }
+
+  class Client {
+    + run(): void
+  }
+
+  %% Relaciones
+  Publisher o-- Subscriber : holds list
+  Subscriber <|.. ConcreteSubscriberA
+  Subscriber <|.. ConcreteSubscriberB
+  Cli
