@@ -18,6 +18,7 @@ const TOUR_KEY_MAP = {
   '/coordinator/incidents':   'coordinator-incidents',
   '/coordinator/wellbeing':   'coordinator-wellbeing',
   '/coordinator/assignments': 'coordinator-assignments',
+  '/coordinator/cohorts':     'coordinator-cohorts',
   '/coordinator/users':       'coordinator-users',
 }
 

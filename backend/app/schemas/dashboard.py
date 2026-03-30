@@ -2,7 +2,7 @@ from datetime import date
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Literal
 
 
@@ -42,6 +42,27 @@ class AssignmentOut(BaseModel):
     student_name: str | None = None
     tutor_name: str | None = None
     model_config = ConfigDict(from_attributes=True)
+
+
+class CohortOut(BaseModel):
+    id: UUID
+    name: str
+    year: int
+    semester: int
+    is_active: bool
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CohortCreate(BaseModel):
+    year: int = Field(ge=2020, le=2100)
+    semester: int = Field(ge=1, le=2)
+    name: str | None = None
+    is_active: bool = True
+
+
+class CohortUpdate(BaseModel):
+    name: str | None = None
+    is_active: bool | None = None
 
 
 class TutorCreate(BaseModel):

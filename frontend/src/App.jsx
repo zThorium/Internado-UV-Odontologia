@@ -22,6 +22,7 @@ import LogbookDetailPage from './pages/coordinator/LogbookDetailPage'
 import EvaluationsPage from './pages/coordinator/EvaluationsPage'
 import CoordinatorIncidentsPage from './pages/coordinator/IncidentsPage'
 import AssignmentsPage from './pages/coordinator/AssignmentsPage'
+import CohortsPage from './pages/coordinator/CohortsPage'
 import UsersPage from './pages/coordinator/UsersPage'
 import CoordinatorAttendancePage from './pages/coordinator/AttendancePage'
 import WellbeingPage from './pages/coordinator/WellbeingPage'
@@ -84,6 +85,7 @@ export default function App() {
             <Route path="evaluations" element={<EvaluationsPage />} />
             <Route path="incidents" element={<CoordinatorIncidentsPage />} />
             <Route path="assignments" element={<AssignmentsPage />} />
+            <Route path="cohorts" element={<CohortsPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="attendance" element={<CoordinatorAttendancePage />} />
             <Route path="wellbeing" element={<WellbeingPage />} />

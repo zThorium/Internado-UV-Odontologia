@@ -11,6 +11,9 @@ from app.schemas.dashboard import (
     ActivityItem,
     AssignmentCreate,
     AssignmentOut,
+    CohortCreate,
+    CohortOut,
+    CohortUpdate,
     DashboardMetricSeriesResponse,
     DashboardStats,
     DashboardTrends,
@@ -20,6 +23,7 @@ from app.schemas.dashboard import (
     WellbeingQuickResponse,
 )
 from app.services.dashboard import (
+    create_cohort,
     create_assignment,
     create_tutor,
     deactivate_assignment,
@@ -28,8 +32,10 @@ from app.services.dashboard import (
     get_dashboard_trends,
     get_recent_activity,
     get_wellbeing_quick,
+    list_cohorts,
     list_assignments,
     list_tutors,
+    update_cohort,
     update_tutor,
 )
 
@@ -156,30 +162,34 @@ async def list_students_endpoint(
     return list(result.scalars().all())
 
 
-@router.get("/cohorts")
+@router.get("/cohorts", response_model=list[CohortOut])
 async def list_cohorts_endpoint(
     _: UserInToken = Depends(require_role("coordinator")),
     db: AsyncSession = Depends(get_db),
 ):
     """Lista todos los cohortes disponibles."""
-    from sqlalchemy import select as sa_select
-    from app.models.cohort import Cohort
-    
-    result = await db.execute(
-        sa_select(Cohort).order_by(Cohort.year.desc(), Cohort.semester.desc())
-    )
-    cohorts = result.scalars().all()
-    
-    return [
-        {
-            "id": str(c.id),
-            "name": c.name,
-            "year": c.year,
-            "semester": c.semester,
-            "is_active": c.is_active,
-        }
-        for c in cohorts
-    ]
+    return await list_cohorts(db)
+
+
+@router.post("/cohorts", response_model=CohortOut, status_code=status.HTTP_201_CREATED)
+async def create_cohort_endpoint(
+    data: CohortCreate,
+    _: UserInToken = Depends(require_role("coordinator")),
+    db: AsyncSession = Depends(get_db),
+):
+    """Crea una cohorte nueva."""
+    return await create_cohort(data, db)
+
+
+@router.patch("/cohorts/{cohort_id}", response_model=CohortOut)
+async def update_cohort_endpoint(
+    cohort_id: UUID,
+    data: CohortUpdate,
+    _: UserInToken = Depends(require_role("coordinator")),
+    db: AsyncSession = Depends(get_db),
+):
+    """Actualiza nombre y/o estado activo de una cohorte."""
+    return await update_cohort(cohort_id, data, db)
 
 
 @router.get("/tutors", response_model=list[TutorOut])

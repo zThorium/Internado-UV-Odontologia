@@ -179,6 +179,16 @@ const TOUR_STEPS = {
       },
     },
     {
+      element: '[data-tour="coordinator-cohorts"]',
+      popover: {
+        title: 'Cohortes',
+        description:
+          'Administra los periodos académicos (cohortes) para mantener ordenadas las asignaciones y reportes.',
+        side: 'right',
+        align: 'start',
+      },
+    },
+    {
       element: '[data-tour="coordinator-users"]',
       popover: {
         title: 'Gestión de usuarios',
