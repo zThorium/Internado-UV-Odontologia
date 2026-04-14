@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel
+from typing import Literal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import require_role
@@ -45,6 +46,9 @@ router = APIRouter()
 class TutorUpdate(BaseModel):
     full_name: str | None = None
     is_active: bool | None = None
+    profession: str | None = None
+    available_hours_per_week: int | None = None
+    tutor_training_status: Literal["yes", "no", "in_progress"] | None = None
 
 
 @router.get("/overview", response_model=DashboardStats)
@@ -209,7 +213,15 @@ async def update_tutor_endpoint(
     _: UserInToken = Depends(require_role("coordinator")),
     db: AsyncSession = Depends(get_db),
 ):
-    return await update_tutor(tutor_id, body.full_name, body.is_active, db)
+    return await update_tutor(
+        tutor_id,
+        body.full_name,
+        body.is_active,
+        body.profession,
+        body.available_hours_per_week,
+        body.tutor_training_status,
+        db,
+    )
 
 
 @router.patch("/students/{student_id}", response_model=TutorOut)
@@ -258,7 +270,7 @@ async def delete_student_endpoint(
     from app.models.logbook import LogbookEntry
     from app.models.attendance import AttendanceRecord
     from app.models.incident import Incident
-    from app.models.wellbeing import WellbeingEntry
+    from app.models.wellbeing import WellbeingAlert
     from app.models.student_alert import StudentAlert
     from app.core.keycloak_client import delete_keycloak_user
     from fastapi import HTTPException
@@ -285,7 +297,7 @@ async def delete_student_endpoint(
     
     # 2. Eliminar registros relacionados en la BD
     await db.execute(sa_delete(StudentAlert).where(StudentAlert.student_id == student_id))
-    await db.execute(sa_delete(WellbeingEntry).where(WellbeingEntry.student_id == student_id))
+    await db.execute(sa_delete(WellbeingAlert).where(WellbeingAlert.student_id == student_id))
     await db.execute(sa_delete(Incident).where(Incident.student_id == student_id))
     await db.execute(sa_delete(AttendanceRecord).where(AttendanceRecord.student_id == student_id))
     await db.execute(sa_delete(LogbookEntry).where(LogbookEntry.student_id == student_id))

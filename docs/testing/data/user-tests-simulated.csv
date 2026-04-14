@@ -1,0 +1,11 @@
+participant_id,profile,task_logbook,task_attendance,task_incident,task_evaluation,satisfaction,comments
+P01,student,1,1,1,1,5,Flujo claro en todas las pantallas
+P02,student,1,1,1,0,4,Dificultad menor en seccion de evaluacion
+P03,student,1,1,1,1,5,Interfaz intuitiva
+P04,tutor,1,1,0,1,4,Falta de mensaje contextual en incidente
+P05,tutor,1,1,1,1,4,Buen rendimiento general
+P06,coordinator,1,1,1,1,5,Panel de control claro
+P07,coordinator,1,1,1,1,4,Se sugiere mas ayuda contextual
+P08,student,1,0,1,1,3,Confusion puntual en asistencia
+P09,tutor,1,1,1,1,4,Sin bloqueos funcionales
+P10,coordinator,1,1,1,1,5,Flujo completo satisfactorio

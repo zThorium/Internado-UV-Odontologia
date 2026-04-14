@@ -96,5 +96,10 @@ class Settings(BaseSettings):
     # ==========================================
     ENVIRONMENT: str = "development"
 
+    # ==========================================
+    # Tutor workflow
+    # ==========================================
+    TUTOR_LOGBOOK_VALIDATION_ALERT_WEEKS: int = 2
+
 
 settings = Settings()

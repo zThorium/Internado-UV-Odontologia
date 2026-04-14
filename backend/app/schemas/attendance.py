@@ -5,6 +5,7 @@ from typing import Literal
 
 
 AttendanceStatus = Literal["present", "absent", "justified"]
+AttendancePeriod = Literal["semester_1", "semester_2"]
 
 
 class AttendanceCreate(BaseModel):
@@ -29,9 +30,28 @@ class AttendanceOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class AttendancePeriodSummary(BaseModel):
+    period: AttendancePeriod
+    total: int
+    present: int
+    absent: int
+    justified: int
+
+
+class AttendanceWeekSummary(BaseModel):
+    week_label: str
+    period: AttendancePeriod
+    total: int
+    present: int
+    absent: int
+    justified: int
+
+
 class AttendanceStats(BaseModel):
     total: int
     present: int
     absent: int
     justified: int
     attendance_rate: float  # porcentaje de días presentes sobre total
+    by_period: list[AttendancePeriodSummary] = []
+    by_week: list[AttendanceWeekSummary] = []

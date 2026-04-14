@@ -20,6 +20,9 @@ from app.core.deps import get_current_user, require_role
 from app.core.security import create_access_token
 
 
+pytestmark = [pytest.mark.unit, pytest.mark.property]
+
+
 # ---------------------------------------------------------------------------
 # Helper síncrono (hypothesis no soporta async nativamente)
 # ---------------------------------------------------------------------------

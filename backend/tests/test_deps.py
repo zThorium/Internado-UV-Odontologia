@@ -6,6 +6,9 @@ from app.core.deps import get_current_user, require_role, UserInToken
 from app.core.security import create_access_token
 
 
+pytestmark = pytest.mark.unit
+
+
 @pytest.mark.asyncio
 async def test_get_current_user_valid_token():
     token = create_access_token({"sub": "user-123", "role": "student"})

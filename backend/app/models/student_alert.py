@@ -20,7 +20,7 @@ class StudentAlert(Base):
     alert_type: Mapped[str] = mapped_column(
         sa.Enum(
             "no_bitacora", "low_wellbeing", "no_evaluation",
-            "absences", "incident_report",
+            "no_tutor_validation", "absences", "incident_report",
             name="student_alert_type",
         ),
         nullable=False,

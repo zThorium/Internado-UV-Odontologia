@@ -21,6 +21,16 @@ class LogbookProcedureOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class LogbookTutorValidationOut(BaseModel):
+    id: UUID
+    entry_id: UUID
+    student_id: UUID
+    tutor_id: UUID | None
+    assignment_id: UUID | None
+    validated_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
 class LogbookEntryCreate(BaseModel):
     week_number: int = Field(ge=1)
     week_start_date: date
@@ -41,6 +51,7 @@ class LogbookEntryOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     procedures: list[LogbookProcedureOut]
+    tutor_validation: LogbookTutorValidationOut | None = None
     model_config = ConfigDict(from_attributes=True)
 
 

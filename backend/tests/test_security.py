@@ -2,6 +2,9 @@ import pytest
 from app.core.security import hash_password, verify_password
 
 
+pytestmark = pytest.mark.unit
+
+
 def test_hash_password_returns_string():
     hashed = hash_password("secret123")
     assert isinstance(hashed, str)

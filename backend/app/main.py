@@ -23,8 +23,8 @@ app.add_middleware(
 )
 
 # Privacy policy:
-# - /logbook/*   → student, coordinator only (tutor blocked)
-# - /incidents/* → student, coordinator only (tutor blocked)
+# - /logbook/*   → student/coordinator y endpoints acotados para tutor
+# - /incidents/* → student/tutor/coordinator según endpoint
 # - /evaluations/my-students, POST /evaluations → tutor only
 # - /evaluations/students/{id} → student, tutor, coordinator
 app.include_router(auth.router, prefix="/auth", tags=["auth"])

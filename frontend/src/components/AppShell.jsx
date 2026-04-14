@@ -10,6 +10,7 @@ const TOUR_KEY_MAP = {
   '/student/attendance':      'student-attendance',
   '/student/incidents':       'student-incidents',
   '/tutor':                   'tutor-students',
+  '/tutor/incidents':         'tutor-incidents',
   '/coordinator/overview':    'coordinator-overview',
   '/coordinator/alerts':      'coordinator-alerts',
   '/coordinator/logbooks':    'coordinator-logbooks',

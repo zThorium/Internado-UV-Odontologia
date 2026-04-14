@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.172" timestamp="2026-04-14T14:30:33.078778-04:00" hostname="MacBook-Air-de-Fabian.local"><testcase classname="tests.test_system_e2e" name="test_complete_clinical_flow_end_to_end" time="0.067" /></testsuite></testsuites>

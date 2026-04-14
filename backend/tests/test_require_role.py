@@ -4,13 +4,16 @@ Tests unitarios exhaustivos para require_role().
 Cubre:
 - Matriz 3x3: cada rol de usuario vs cada rol permitido (9 combinaciones)
 - Combinaciones multi-rol (allowed_roles con 2 elementos)
-- Casos críticos del diseño: tutor bloqueado en bitácora e incidentes
+- Casos críticos del diseño: tutor bloqueado en bitácora y permitido en incidentes
 """
 import pytest
 from fastapi import HTTPException
 
 from app.core.deps import get_current_user, require_role
 from app.core.security import create_access_token
+
+
+pytestmark = pytest.mark.unit
 
 
 # ---------------------------------------------------------------------------
@@ -140,8 +143,7 @@ async def test_student_accesses_tutor_coordinator_endpoint_raises_403():
 
 
 # ---------------------------------------------------------------------------
-# Casos críticos del diseño: tutor bloqueado en bitácora e incidentes
-# (endpoints protegidos con allowed=["student", "coordinator"])
+# Casos críticos del diseño
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
@@ -154,12 +156,10 @@ async def test_tutor_blocked_from_logbook_endpoint_raises_403():
 
 
 @pytest.mark.asyncio
-async def test_tutor_blocked_from_incidents_endpoint_raises_403():
-    """Tutor intenta acceder a endpoint de incidentes (solo student+coordinator) → 403."""
-    with pytest.raises(HTTPException) as exc:
-        await _check("tutor", "student", "coordinator")
-    assert exc.value.status_code == 403
-    assert exc.value.detail == "Acceso denegado"
+async def test_tutor_allowed_in_incidents_endpoint_roles_ok():
+    """Tutor puede acceder a endpoint de incidentes cuando allowed incluye tutor."""
+    result = await _check("tutor", "student", "tutor", "coordinator")
+    assert result.role == "tutor"
 
 
 # ---------------------------------------------------------------------------

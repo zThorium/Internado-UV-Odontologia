@@ -6,7 +6,21 @@ import EmptyState from '../../components/ui/EmptyState'
 import ConfirmModal from '../../components/ui/ConfirmModal'
 import { Users, Plus, Pencil, Check, X, UserCheck, GraduationCap, Shield, Trash2 } from 'lucide-react'
 
-const EMPTY_CREATE = { email: '', full_name: '', password: '', role: 'student' }
+const EMPTY_CREATE = {
+  email: '',
+  full_name: '',
+  password: '',
+  role: 'student',
+  profession: '',
+  available_hours_per_week: '',
+  tutor_training_status: 'no',
+}
+
+const TRAINING_LABELS = {
+  yes: 'Sí',
+  no: 'No',
+  in_progress: 'En proceso',
+}
 
 export default function UsersPage() {
   const [users, setUsers] = useState([])
@@ -17,7 +31,13 @@ export default function UsersPage() {
   const [createError, setCreateError] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [editForm, setEditForm] = useState({ full_name: '', is_active: true })
+  const [editForm, setEditForm] = useState({
+    full_name: '',
+    is_active: true,
+    profession: '',
+    available_hours_per_week: '',
+    tutor_training_status: 'no',
+  })
   const [editError, setEditError] = useState(null)
   const [filterRole, setFilterRole] = useState('all')
   const [deletingId, setDeletingId] = useState(null)
@@ -55,7 +75,16 @@ export default function UsersPage() {
     setCreateError(null)
     setCreating(true)
     try {
-      await api.post('/auth/create-user', createForm)
+      const payload = { ...createForm }
+      if (payload.role !== 'tutor') {
+        payload.profession = null
+        payload.available_hours_per_week = null
+        payload.tutor_training_status = null
+      } else {
+        payload.available_hours_per_week = Number(payload.available_hours_per_week)
+      }
+
+      await api.post('/auth/create-user', payload)
       setCreateForm(EMPTY_CREATE)
       setShowForm(false)
       load()
@@ -68,7 +97,13 @@ export default function UsersPage() {
 
   const startEdit = (user) => {
     setEditingId(user.id)
-    setEditForm({ full_name: user.full_name, is_active: user.is_active })
+    setEditForm({
+      full_name: user.full_name,
+      is_active: user.is_active,
+      profession: user.profession || '',
+      available_hours_per_week: user.available_hours_per_week ?? '',
+      tutor_training_status: user.tutor_training_status || 'no',
+    })
     setEditError(null)
   }
 
@@ -76,7 +111,20 @@ export default function UsersPage() {
     setEditError(null)
     try {
       const endpoint = user.role === 'tutor' ? '/dashboard/tutors' : '/dashboard/students'
-      await api.patch(`${endpoint}/${user.id}`, editForm)
+      const payload = {
+        full_name: editForm.full_name,
+        is_active: editForm.is_active,
+      }
+
+      if (user.role === 'tutor') {
+        payload.profession = editForm.profession || null
+        payload.available_hours_per_week = editForm.available_hours_per_week
+          ? Number(editForm.available_hours_per_week)
+          : null
+        payload.tutor_training_status = editForm.tutor_training_status || null
+      }
+
+      await api.patch(`${endpoint}/${user.id}`, payload)
       setEditingId(null)
       load()
     } catch (err) {
@@ -190,7 +238,16 @@ export default function UsersPage() {
               <label className="label">Rol</label>
               <select
                 value={createForm.role}
-                onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
+                onChange={(e) => {
+                  const nextRole = e.target.value
+                  setCreateForm((prev) => ({
+                    ...prev,
+                    role: nextRole,
+                    profession: nextRole === 'tutor' ? prev.profession : '',
+                    available_hours_per_week: nextRole === 'tutor' ? prev.available_hours_per_week : '',
+                    tutor_training_status: nextRole === 'tutor' ? prev.tutor_training_status : 'no',
+                  }))
+                }}
                 required
                 className="input"
               >
@@ -232,6 +289,48 @@ export default function UsersPage() {
                 placeholder="Mínimo 8 caracteres"
               />
             </div>
+
+            {createForm.role === 'tutor' && (
+              <>
+                <div className="field">
+                  <label className="label">Profesión</label>
+                  <input
+                    type="text"
+                    value={createForm.profession}
+                    onChange={(e) => setCreateForm({ ...createForm, profession: e.target.value })}
+                    required
+                    className="input"
+                    placeholder="Ej: Dentista"
+                  />
+                </div>
+                <div className="field">
+                  <label className="label">Horas disponibles por semana</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={80}
+                    value={createForm.available_hours_per_week}
+                    onChange={(e) => setCreateForm({ ...createForm, available_hours_per_week: e.target.value })}
+                    required
+                    className="input"
+                    placeholder="Ej: 12"
+                  />
+                </div>
+                <div className="field" style={{ gridColumn: '1 / -1' }}>
+                  <label className="label">Capacitación como tutor clínico</label>
+                  <select
+                    value={createForm.tutor_training_status}
+                    onChange={(e) => setCreateForm({ ...createForm, tutor_training_status: e.target.value })}
+                    className="input"
+                    required
+                  >
+                    <option value="yes">Sí</option>
+                    <option value="no">No</option>
+                    <option value="in_progress">En proceso</option>
+                  </select>
+                </div>
+              </>
+            )}
             <div style={{ gridColumn: '1 / -1' }}>
               <AlertError>{createError}</AlertError>
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
@@ -308,12 +407,41 @@ export default function UsersPage() {
                   <tr key={user.id}>
                     <td>
                       {editingId === user.id ? (
-                        <input
-                          value={editForm.full_name}
-                          onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                          className="input"
-                          style={{ maxWidth: 220 }}
-                        />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: 320 }}>
+                          <input
+                            value={editForm.full_name}
+                            onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                            className="input"
+                          />
+                          {user.role === 'tutor' && (
+                            <>
+                              <input
+                                value={editForm.profession}
+                                onChange={(e) => setEditForm({ ...editForm, profession: e.target.value })}
+                                className="input"
+                                placeholder="Profesión"
+                              />
+                              <input
+                                type="number"
+                                min={1}
+                                max={80}
+                                value={editForm.available_hours_per_week}
+                                onChange={(e) => setEditForm({ ...editForm, available_hours_per_week: e.target.value })}
+                                className="input"
+                                placeholder="Horas por semana"
+                              />
+                              <select
+                                className="input"
+                                value={editForm.tutor_training_status}
+                                onChange={(e) => setEditForm({ ...editForm, tutor_training_status: e.target.value })}
+                              >
+                                <option value="yes">Sí</option>
+                                <option value="no">No</option>
+                                <option value="in_progress">En proceso</option>
+                              </select>
+                            </>
+                          )}
+                        </div>
                       ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                           <div style={{
@@ -330,7 +458,14 @@ export default function UsersPage() {
                               {user.full_name?.charAt(0)?.toUpperCase() || '?'}
                             </span>
                           </div>
-                          <span style={{ fontWeight: 500 }}>{user.full_name}</span>
+                          <div>
+                            <p style={{ margin: 0, fontWeight: 500 }}>{user.full_name}</p>
+                            {user.role === 'tutor' && (
+                              <p style={{ margin: '0.1rem 0 0', fontSize: '0.75rem', color: 'var(--color-ink-500)' }}>
+                                {user.profession || 'Profesión no definida'} · {user.available_hours_per_week ?? '—'} h/sem · {TRAINING_LABELS[user.tutor_training_status] || 'Sin estado'}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       )}
                     </td>

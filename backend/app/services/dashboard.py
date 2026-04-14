@@ -220,6 +220,9 @@ async def create_tutor(data: TutorCreate, db: AsyncSession) -> User:
         full_name=data.full_name,
         hashed_password=hash_password(data.password),
         role="tutor",
+        profession=data.profession,
+        available_hours_per_week=data.available_hours_per_week,
+        tutor_training_status=data.tutor_training_status,
         is_active=True,
     )
     db.add(tutor)
@@ -252,6 +255,9 @@ async def update_tutor(
     tutor_id: UUID,
     full_name: str | None,
     is_active: bool | None,
+    profession: str | None,
+    available_hours_per_week: int | None,
+    tutor_training_status: str | None,
     db: AsyncSession,
 ) -> User:
     tutor = await db.get(User, tutor_id)
@@ -261,6 +267,12 @@ async def update_tutor(
         tutor.full_name = full_name
     if is_active is not None:
         tutor.is_active = is_active
+    if profession is not None:
+        tutor.profession = profession
+    if available_hours_per_week is not None:
+        tutor.available_hours_per_week = available_hours_per_week
+    if tutor_training_status is not None:
+        tutor.tutor_training_status = tutor_training_status
     await db.commit()
     await db.refresh(tutor)
     return tutor

@@ -7,6 +7,7 @@ from typing import Literal
 
 
 CareLevel = Literal["primary", "secondary", "tertiary"]
+TutorTrainingStatus = Literal["yes", "no", "in_progress"]
 
 
 class DashboardStats(BaseModel):
@@ -69,6 +70,9 @@ class TutorCreate(BaseModel):
     email: EmailStr
     full_name: str
     password: str
+    profession: str
+    available_hours_per_week: int = Field(ge=1, le=80)
+    tutor_training_status: TutorTrainingStatus
 
 
 class TutorOut(BaseModel):
@@ -76,6 +80,9 @@ class TutorOut(BaseModel):
     email: str
     full_name: str
     is_active: bool
+    profession: str | None = None
+    available_hours_per_week: int | None = None
+    tutor_training_status: TutorTrainingStatus | None = None
     model_config = ConfigDict(from_attributes=True)
 
 

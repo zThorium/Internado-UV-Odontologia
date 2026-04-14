@@ -1,0 +1,39 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1100' height='600'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='550.0' y='35' text-anchor='middle' font-family='Arial' font-size='24'>Cobertura por Modulo (backend/app)</text>
+<line x1='80' y1='70' x2='80' y2='460' stroke='black' stroke-width='2'/>
+<line x1='80' y1='460' x2='1070' y2='460' stroke='black' stroke-width='2'/>
+<line x1='80' y1='460.0' x2='1070' y2='460.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='464.0' text-anchor='end' font-family='Arial' font-size='12'>0</text>
+<line x1='80' y1='382.0' x2='1070' y2='382.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='386.0' text-anchor='end' font-family='Arial' font-size='12'>20</text>
+<line x1='80' y1='304.0' x2='1070' y2='304.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='308.0' text-anchor='end' font-family='Arial' font-size='12'>40</text>
+<line x1='80' y1='226.0' x2='1070' y2='226.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='230.0' text-anchor='end' font-family='Arial' font-size='12'>60</text>
+<line x1='80' y1='148.0' x2='1070' y2='148.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='152.0' text-anchor='end' font-family='Arial' font-size='12'>80</text>
+<line x1='80' y1='70.0' x2='1070' y2='70.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='74.0' text-anchor='end' font-family='Arial' font-size='12'>100</text>
+<rect x='108.3' y='157.0' width='84.9' height='303.0' fill='#e9c46a'/>
+<text x='150.7' y='149.0' text-anchor='middle' font-family='Arial' font-size='12'>77.70%</text>
+<text x='150.7' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 150.7,482.0)'>core</text>
+<rect x='249.7' y='190.0' width='84.9' height='270.0' fill='#e76f51'/>
+<text x='292.1' y='182.0' text-anchor='middle' font-family='Arial' font-size='12'>69.23%</text>
+<text x='292.1' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 292.1,482.0)'>db</text>
+<rect x='391.1' y='70.0' width='84.9' height='390.0' fill='#2a9d8f'/>
+<text x='433.6' y='62.0' text-anchor='middle' font-family='Arial' font-size='12'>100.00%</text>
+<text x='433.6' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 433.6,482.0)'>models</text>
+<rect x='532.6' y='87.0' width='84.9' height='373.0' fill='#2a9d8f'/>
+<text x='575.0' y='79.0' text-anchor='middle' font-family='Arial' font-size='12'>95.65%</text>
+<text x='575.0' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 575.0,482.0)'>root</text>
+<rect x='674.0' y='108.7' width='84.9' height='351.3' fill='#2a9d8f'/>
+<text x='716.4' y='100.7' text-anchor='middle' font-family='Arial' font-size='12'>90.08%</text>
+<text x='716.4' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 716.4,482.0)'>routers</text>
+<rect x='815.4' y='70.0' width='84.9' height='390.0' fill='#2a9d8f'/>
+<text x='857.9' y='62.0' text-anchor='middle' font-family='Arial' font-size='12'>100.00%</text>
+<text x='857.9' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 857.9,482.0)'>schemas</text>
+<rect x='956.9' y='119.7' width='84.9' height='340.3' fill='#2a9d8f'/>
+<text x='999.3' y='111.7' text-anchor='middle' font-family='Arial' font-size='12'>87.25%</text>
+<text x='999.3' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 999.3,482.0)'>services</text>
+</svg>

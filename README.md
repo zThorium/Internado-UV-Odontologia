@@ -289,12 +289,22 @@ alembic upgrade head
 # Correr backend standalone
 uvicorn app.main:app --reload
 
-# Correr tests
-pytest
+# Ejecutar suite de calidad completa
+# (unit + integration + system + acceptance + all + cobertura + reportes visuales)
+python scripts/run_quality_suite.py
 
-# Tests con cobertura
-pytest --cov=app --cov-report=html
-open htmlcov/index.html
+# Ejecutar suites individuales por marcador
+pytest -m unit
+pytest -m integration
+pytest -m system
+pytest -m acceptance
+
+# Analizar pruebas con usuarios simulados
+python scripts/analyze_user_tests.py
+
+# Abrir reportes principales
+open reports/testing/index.html
+open ../docs/testing/reports/user-testing-summary.html
 ```
 
 ### Frontend
@@ -333,21 +343,45 @@ docker compose down -v
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing y Calidad
+
+### Ejecución recomendada (rubrica completa)
 
 ```bash
 cd backend
-pytest --cov=app --cov-report=html
-open htmlcov/index.html
+python scripts/run_quality_suite.py
 ```
 
-**Tests incluidos:**
+Este flujo ejecuta pruebas por categoría (`unit`, `integration`, `system`, `acceptance`) y una corrida global (`all`) con cobertura.
 
-- ✅ Tests unitarios de seguridad (JWT, bcrypt)
-- ✅ Tests de integración (logbook, incidents, evaluations)
+### Reportes generados automáticamente
+
+- Dashboard consolidado: `backend/reports/testing/index.html`
+- Resumen Markdown: `backend/reports/testing/TEST_REPORT_SUMMARY.md`
+- Resumen JSON: `backend/reports/testing/summary.json`
+- Cobertura HTML: `backend/reports/testing/htmlcov/index.html`
+- Reportes por suite (HTML + JUnit): `backend/reports/testing/<suite>/`
+
+### Pruebas con usuarios simulados
+
+```bash
+cd backend
+python scripts/analyze_user_tests.py
+```
+
+Salidas:
+
+- `docs/testing/reports/user-testing-summary.md`
+- `docs/testing/reports/user-testing-summary.html`
+
+### Cobertura funcional del plan de pruebas
+
+- ✅ Unitarias
+- ✅ Integración
+- ✅ Sistema (E2E)
+- ✅ Aceptación (AC-01 a AC-06)
 - ✅ Property-based testing con Hypothesis
-- ✅ Tests de roles y permisos
-- 🔲 Tests de integración con Keycloak (pendiente)
+- ✅ Evidencia visual consolidada para evaluación académica
 
 ---
 
@@ -391,6 +425,7 @@ open htmlcov/index.html
 ## 📖 Documentación
 
 - **[docs/keycloak-setup.md](docs/keycloak-setup.md)** — Guía completa de configuración Keycloak
+- **[docs/testing/README.md](docs/testing/README.md)** — Plan de calidad, criterios de aceptación y pruebas con usuarios
 - **[contexto/product.md](contexto/product.md)** — Documento de producto y visión
 - **[mvp_architecture.png](mvp_architecture.png)** — Diagrama de arquitectura MVP
 - **[system_architecture.png](system_architecture.png)** — Diagrama de arquitectura del sistema

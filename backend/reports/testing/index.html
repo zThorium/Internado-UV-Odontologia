@@ -1,0 +1,196 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard de Calidad de Pruebas</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --ok: #166534;
+      --ok-bg: #dcfce7;
+      --bad: #991b1b;
+      --bad-bg: #fee2e2;
+      --accent: #0f766e;
+      --bar: #14b8a6;
+      --border: #e5e7eb;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: "Source Sans 3", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top right, #d1fae5 0%, var(--bg) 45%);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(100deg, #ecfeff 0%, #f0fdf4 100%);
+    }
+    h1 { margin: 0; font-size: 1.45rem; }
+    .meta { margin-top: 6px; color: var(--muted); font-size: 0.95rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      padding: 16px 24px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+    .k { color: var(--muted); font-size: 0.88rem; }
+    .v { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-top: 1px solid var(--border); padding: 10px 12px; text-align: left; font-size: 0.95rem; }
+    thead th { background: #f9fafb; border-top: none; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+    .status { padding: 3px 8px; border-radius: 999px; font-weight: 600; font-size: 0.8rem; }
+    .status.ok { color: var(--ok); background: var(--ok-bg); }
+    .status.bad { color: var(--bad); background: var(--bad-bg); }
+    .bar-wrap { width: 100%; background: #ecfeff; height: 8px; border-radius: 999px; overflow: hidden; }
+    .bar { height: 100%; background: var(--bar); }
+    .links { padding: 16px 24px 24px; }
+    .links a { color: var(--accent); text-decoration: none; margin-right: 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Dashboard Consolidado de Calidad</h1>
+      <div class="meta">Generado: 2026-04-14 18:30:42 UTC</div>
+    </header>
+
+    <section class="grid">
+      <article class="card"><div class="k">Cobertura Global</div><div class="v">88.62%</div></article>
+      <article class="card"><div class="k">Tests Ejecutados</div><div class="v">153</div></article>
+      <article class="card"><div class="k">Tests Aprobados</div><div class="v">153</div></article>
+      <article class="card"><div class="k">Tests Fallidos + Error</div><div class="v">0</div></article>
+    </section>
+
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>Suite</th>
+            <th>Tests</th>
+            <th>Pass</th>
+            <th>Fail</th>
+            <th>Error</th>
+            <th>Skip</th>
+            <th>Tiempo(s)</th>
+            <th>Estado</th>
+            <th>Volumen</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>unit</td>
+              <td>85</td>
+              <td>85</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>2.15</td>
+              <td><span class="status ok">PASS</span></td>
+              <td>
+                <div class="bar-wrap" title="Pass rate: 100.0%">
+                  <div class="bar" style="width:55%"></div>
+                </div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>integration</td>
+              <td>61</td>
+              <td>61</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>3.23</td>
+              <td><span class="status ok">PASS</span></td>
+              <td>
+                <div class="bar-wrap" title="Pass rate: 100.0%">
+                  <div class="bar" style="width:39%"></div>
+                </div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>system</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.17</td>
+              <td><span class="status ok">PASS</span></td>
+              <td>
+                <div class="bar-wrap" title="Pass rate: 100.0%">
+                  <div class="bar" style="width:4%"></div>
+                </div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>acceptance</td>
+              <td>6</td>
+              <td>6</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.26</td>
+              <td><span class="status ok">PASS</span></td>
+              <td>
+                <div class="bar-wrap" title="Pass rate: 100.0%">
+                  <div class="bar" style="width:4%"></div>
+                </div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>all</td>
+              <td>153</td>
+              <td>153</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>6.11</td>
+              <td><span class="status ok">PASS</span></td>
+              <td>
+                <div class="bar-wrap" title="Pass rate: 100.0%">
+                  <div class="bar" style="width:100%"></div>
+                </div>
+              </td>
+            </tr>
+            
+        </tbody>
+      </table>
+    </section>
+
+    <section class="links">
+      <a href="all/report.html">Reporte all</a>
+      <a href="unit/report.html">Reporte unit</a>
+      <a href="integration/report.html">Reporte integration</a>
+      <a href="system/report.html">Reporte system</a>
+      <a href="acceptance/report.html">Reporte acceptance</a>
+      <a href="htmlcov/index.html">Coverage HTML</a>
+    </section>
+  </div>
+</body>
+</html>

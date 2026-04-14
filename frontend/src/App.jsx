@@ -16,6 +16,8 @@ import StudentsListPage from './pages/tutor/StudentsListPage'
 import EvaluationFormPage from './pages/tutor/EvaluationFormPage'
 import ConfirmationPage from './pages/tutor/ConfirmationPage'
 import TutorAttendancePage from './pages/tutor/AttendancePage'
+import TutorIncidentsPage from './pages/tutor/IncidentsPage'
+import TutorLogbookValidationPage from './pages/tutor/LogbookValidationPage'
 import OverviewPage from './pages/coordinator/OverviewPage'
 import LogbooksPage from './pages/coordinator/LogbooksPage'
 import LogbookDetailPage from './pages/coordinator/LogbookDetailPage'
@@ -64,8 +66,10 @@ export default function App() {
             }
           >
             <Route index element={<StudentsListPage />} />
+            <Route path="incidents" element={<TutorIncidentsPage />} />
             <Route path="evaluate/:assignment_id" element={<EvaluationFormPage />} />
             <Route path="confirmation" element={<ConfirmationPage />} />
+            <Route path="logbook/:student_id" element={<TutorLogbookValidationPage />} />
             <Route path="attendance/:student_id" element={<TutorAttendancePage />} />
           </Route>
 

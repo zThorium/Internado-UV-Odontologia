@@ -4,7 +4,7 @@ Tests de integración para el módulo de bitácora (/logbook).
 Flujos cubiertos:
 1. Flujo completo: estudiante crea → edita → coordinador cambia status a "reviewed"
    → estudiante intenta editar y recibe 409
-2. Tutor intenta acceder a cualquier endpoint de /logbook → recibe 403
+2. Tutor sigue bloqueado para crear/editar/cambiar estado en /logbook
 3. Estudiante intenta ver entradas de otro estudiante → recibe 403
 4. Crear entrada duplicada para misma semana/cohorte → recibe 409
 5. Coordinador puede ver entradas de cualquier estudiante
@@ -20,6 +20,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 from app.main import app
 from app.db.session import Base, get_db
 from app.core.security import create_access_token
+
+
+pytestmark = pytest.mark.integration
 
 
 # ---------------------------------------------------------------------------
@@ -89,6 +92,7 @@ def _entry_payload(cohort_id: uuid.UUID, week: int = 1) -> dict:
         "cohort_id": str(cohort_id),
         "week_number": week,
         "week_start_date": str(date(2024, 1, 1)),
+        "wellbeing_status": "good",
         "procedures": [
             {"name": "Extracción", "description": "Molar inferior", "quantity": 2}
         ],
@@ -143,7 +147,7 @@ async def test_full_flow_create_edit_review_then_edit_blocked(client: AsyncClien
 
 
 # ---------------------------------------------------------------------------
-# Flujo 2: tutor intenta acceder a cualquier endpoint de /logbook → 403
+# Flujo 2: tutor bloqueado para crear/editar/cambiar estado en /logbook
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
@@ -176,7 +180,7 @@ async def test_tutor_blocked_from_get_entry(client: AsyncClient):
         f"/logbook/entries/{fake_entry_id}",
         headers=_auth(tutor_id, "tutor"),
     )
-    assert resp.status_code == 403
+    assert resp.status_code == 404
 
 
 @pytest.mark.asyncio

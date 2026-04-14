@@ -6,7 +6,14 @@ from typing import Literal, Optional
 
 AlertLevel = Literal["yellow", "red"]
 TrafficLight = Literal["green", "yellow", "red"]
-AlertType = Literal["no_bitacora", "low_wellbeing", "no_evaluation", "absences", "incident_report"]
+AlertType = Literal[
+    "no_bitacora",
+    "low_wellbeing",
+    "no_evaluation",
+    "no_tutor_validation",
+    "absences",
+    "incident_report",
+]
 
 
 class StudentAlertOut(BaseModel):

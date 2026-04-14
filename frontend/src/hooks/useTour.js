@@ -71,7 +71,17 @@ const TOUR_STEPS = {
       popover: {
         title: 'Mis Estudiantes',
         description:
-          'Encuentra aquí a todos tus estudiantes asignados. Desde cada tarjeta puedes acceder a sus evaluaciones y ver su asistencia.',
+          'Encuentra aquí a todos tus estudiantes asignados. Desde cada tarjeta puedes evaluar, revisar asistencia y validar su bitácora semanal.',
+        side: 'right',
+        align: 'start',
+      },
+    },
+    {
+      element: '[data-tour="tutor-incidents"]',
+      popover: {
+        title: 'Incidentes clínicos',
+        description:
+          'Si detectas ausencias no justificadas, conflictos o conductas de riesgo, registra aquí el incidente para que coordinación haga seguimiento.',
         side: 'right',
         align: 'start',
       },

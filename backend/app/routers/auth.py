@@ -168,7 +168,14 @@ async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depen
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token inválido o expirado")
 
     user_id = payload.get("sub")
-    result = await db.execute(select(User).where(User.id == user_id))
+    from uuid import UUID
+
+    try:
+        user_uuid = UUID(str(user_id))
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token inválido o expirado")
+
+    result = await db.execute(select(User).where(User.id == user_uuid))
     user = result.scalar_one_or_none()
 
     if user is None:
@@ -387,6 +394,13 @@ async def create_user(
             hashed_password=hash_password(user_data.password),
             full_name=user_data.full_name,
             role=user_data.role,
+            profession=user_data.profession if user_data.role == "tutor" else None,
+            available_hours_per_week=(
+                user_data.available_hours_per_week if user_data.role == "tutor" else None
+            ),
+            tutor_training_status=(
+                user_data.tutor_training_status if user_data.role == "tutor" else None
+            ),
             is_active=True,
             has_completed_onboarding=False,
         )
@@ -401,6 +415,9 @@ async def create_user(
             email=new_user.email,
             full_name=new_user.full_name,
             role=new_user.role,
+            profession=new_user.profession,
+            available_hours_per_week=new_user.available_hours_per_week,
+            tutor_training_status=new_user.tutor_training_status,
             message=f"Usuario {user_data.role} creado exitosamente"
         )
         

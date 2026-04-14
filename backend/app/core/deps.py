@@ -101,7 +101,7 @@ def require_role(*allowed_roles: str):
     Postcondiciones (del diseño):
     - Si user.role in allowed_roles → retorna UserInToken
     - Si user.role NOT in allowed_roles → lanza HTTPException(403)
-    - Regla crítica: tutores que intentan acceder a /logbook o /incidents reciben 403, no 404
+    - Los routers definen el alcance final por endpoint (incluyendo permisos acotados para tutor)
     """
     async def role_checker(current_user: UserInToken = Depends(get_current_user)) -> UserInToken:
         if current_user.role not in allowed_roles:

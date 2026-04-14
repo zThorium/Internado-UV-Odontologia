@@ -46,6 +46,12 @@ class LogbookEntry(Base):
         back_populates="entry",
         cascade="all, delete-orphan",
     )
+    tutor_validation: Mapped["LogbookValidation"] = relationship(
+        "LogbookValidation",
+        back_populates="entry",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
 
 class LogbookProcedure(Base):
