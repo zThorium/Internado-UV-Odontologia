@@ -292,8 +292,10 @@ export function AuthProvider({ children }) {
     setShowTour(false)
     try {
       await api.post('/auth/complete-onboarding')
-    } catch {
-      // silencioso — no crítico
+      console.log('[Auth] Onboarding completado exitosamente')
+    } catch (error) {
+      console.error('[Auth] Error completando onboarding:', error)
+      // No es crítico, pero registramos el error
     }
   }
 

@@ -69,8 +69,15 @@ def setup_keycloak():
             else:
                 raise
         
-        # Cambiar al nuevo realm
-        admin.realm_name = settings.KEYCLOAK_REALM
+        # Cambiar al nuevo realm - IMPORTANTE: Reconectar con el realm correcto
+        admin = KeycloakAdmin(
+            server_url=settings.KEYCLOAK_SERVER_URL,
+            username=settings.KEYCLOAK_ADMIN_USERNAME,
+            password=settings.KEYCLOAK_ADMIN_PASSWORD,
+            realm_name=settings.KEYCLOAK_REALM,
+            user_realm_name="master",
+            verify=True
+        )
         
         # Crear roles
         print("\n3️⃣ Creando roles...")
@@ -94,43 +101,94 @@ def setup_keycloak():
             except Exception as e:
                 print(f"   ❌ Error creando rol '{role}': {e}")
         
-        # Crear cliente
+        # Crear cliente backend
         print(f"\n4️⃣ Creando cliente '{settings.KEYCLOAK_CLIENT_ID}'...")
         try:
-            client_id = admin.create_client(
-                payload={
-                    "clientId": settings.KEYCLOAK_CLIENT_ID,
-                    "enabled": True,
-                    "publicClient": False,
-                    "directAccessGrantsEnabled": True,  # Password Grant
-                    "serviceAccountsEnabled": True,
-                    "authorizationServicesEnabled": False,
-                    "standardFlowEnabled": True,  # Authorization Code
-                    "implicitFlowEnabled": False,
-                    "redirectUris": [
-                        settings.KEYCLOAK_REDIRECT_URI,
-                        "http://localhost:5173/*",
-                    ],
-                    "webOrigins": [
-                        "http://localhost:5173",
-                        "http://localhost:8000",
-                    ],
-                    "protocol": "openid-connect",
-                },
-                skip_exists=True
-            )
-            print(f"✅ Cliente '{settings.KEYCLOAK_CLIENT_ID}' creado")
+            # Verificar si el cliente ya existe
+            clients = admin.get_clients()
+            existing_client = next((c for c in clients if c['clientId'] == settings.KEYCLOAK_CLIENT_ID), None)
             
-            # Obtener el secret del cliente
-            if client_id:
-                client_secret = admin.get_client_secrets(client_id)
-                print(f"\n📋 Client Secret: {client_secret['value']}")
-                print(f"   Actualiza este valor en backend/.env:")
-                print(f"   KEYCLOAK_CLIENT_SECRET={client_secret['value']}")
+            if existing_client:
+                print(f"⚠️  Cliente '{settings.KEYCLOAK_CLIENT_ID}' ya existe")
+                client_id = existing_client['id']
+            else:
+                client_id = admin.create_client(
+                    payload={
+                        "clientId": settings.KEYCLOAK_CLIENT_ID,
+                        "enabled": True,
+                        "publicClient": False,
+                        "directAccessGrantsEnabled": True,  # Password Grant
+                        "serviceAccountsEnabled": True,
+                        "authorizationServicesEnabled": False,
+                        "standardFlowEnabled": True,  # Authorization Code
+                        "implicitFlowEnabled": False,
+                        "redirectUris": [
+                            settings.KEYCLOAK_REDIRECT_URI,
+                            "http://localhost:5173/*",
+                        ],
+                        "webOrigins": [
+                            "http://localhost:5173",
+                            "http://localhost:8000",
+                        ],
+                        "protocol": "openid-connect",
+                    },
+                    skip_exists=True
+                )
+                print(f"✅ Cliente '{settings.KEYCLOAK_CLIENT_ID}' creado")
+            
+            # Obtener el secret del cliente (siempre, para actualizar el .env)
+            client_secret = admin.get_client_secrets(client_id)
+            print(f"\n📋 Client Secret: {client_secret['value']}")
+            print(f"   Actualiza este valor en backend/.env:")
+            print(f"   KEYCLOAK_CLIENT_SECRET={client_secret['value']}")
             
         except KeycloakError as e:
             if "409" in str(e):
                 print(f"⚠️  Cliente '{settings.KEYCLOAK_CLIENT_ID}' ya existe")
+            else:
+                raise
+        
+        # Crear cliente frontend (público)
+        print(f"\n5️⃣ Creando cliente 'internado-frontend'...")
+        try:
+            # Verificar si el cliente ya existe
+            clients = admin.get_clients()
+            existing_frontend = next((c for c in clients if c['clientId'] == 'internado-frontend'), None)
+            
+            if existing_frontend:
+                print(f"⚠️  Cliente 'internado-frontend' ya existe")
+            else:
+                frontend_client_id = admin.create_client(
+                    payload={
+                        "clientId": "internado-frontend",
+                        "enabled": True,
+                        "publicClient": True,  # Cliente público (SPA)
+                        "directAccessGrantsEnabled": False,
+                        "serviceAccountsEnabled": False,
+                        "authorizationServicesEnabled": False,
+                        "standardFlowEnabled": True,  # Authorization Code
+                        "implicitFlowEnabled": False,
+                        "redirectUris": [
+                            "http://localhost:5173/*",
+                            "http://localhost:5173",
+                        ],
+                        "webOrigins": [
+                            "http://localhost:5173",
+                            "http://localhost:8000",
+                            "+",  # Permite todos los orígenes de redirectUris
+                        ],
+                        "protocol": "openid-connect",
+                        "attributes": {
+                            "pkce.code.challenge.method": "S256",  # PKCE para seguridad
+                        },
+                    },
+                    skip_exists=True
+                )
+                print(f"✅ Cliente 'internado-frontend' creado")
+            
+        except KeycloakError as e:
+            if "409" in str(e):
+                print(f"⚠️  Cliente 'internado-frontend' ya existe")
             else:
                 raise
         
