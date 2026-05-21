@@ -1,19 +1,208 @@
-# Environment variables
+# =============================================================================
+# INTERNADO UV ODONTOLOGÍA — .gitignore
+# =============================================================================
+
+# =============================================================================
+# SECRETOS Y VARIABLES DE ENTORNO
+# Nunca subir credenciales, claves ni configuración de producción
+# =============================================================================
+.env
+.env.local
+.env.prod
+.env.staging
+.env.*.local
 backend/.env
 frontend/.env
 
-# Python
+# Archivos de secretos y certificados
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+secrets/
+.secrets/
+
+# =============================================================================
+# PYTHON / BACKEND
+# =============================================================================
+
+# Bytecode y caché
 __pycache__/
+*.py[cod]
+*$py.class
 *.pyc
+*.pyo
+
+# Entornos virtuales
 .venv/
 venv/
-.pytest_cache/
+env/
+ENV/
+.env.bak
+
+# Distribución y empaquetado
 *.egg-info/
-.hypothesis/
-
-# Node
-node_modules/
+*.egg
 dist/
+build/
+*.whl
+*.tar.gz
+MANIFEST
 
-# OS
+# Testing y cobertura
+.coverage
+.coverage.*
+coverage.xml
+backend/coverage.xml
+htmlcov/
+.pytest_cache/
+.hypothesis/
+backend/reports/
+nosetests.xml
+test-results/
+
+# MyPy / type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Archivos temporales de scripts
+backend/check_recaptcha.py
+
+# =============================================================================
+# NODE / FRONTEND
+# =============================================================================
+
+# Dependencias
+node_modules/
+frontend/node_modules/
+
+# Build output
+dist/
+build/
+frontend/dist/
+frontend/build/
+.next/
+.nuxt/
+.output/
+
+# Caché de herramientas
+.vite/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# =============================================================================
+# SISTEMA OPERATIVO
+# =============================================================================
+
+# macOS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon?
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# EDITORES E IDEs
+# =============================================================================
+
+# VS Code (mantener .vscode/settings.json si tiene config del proyecto)
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/*.code-snippets
+
+# JetBrains (PyCharm, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+Session.vim
+.netrwhist
+
+# Emacs
+\#*\#
+.\#*
+
+# =============================================================================
+# DOCKER Y CONTENEDORES
+# =============================================================================
+
+# Ignorar overrides locales de docker-compose (no el principal)
+docker-compose.override.yml
+docker-compose.local.yml
+
+# =============================================================================
+# LOGS Y ARCHIVOS TEMPORALES
+# =============================================================================
+*.log
+*.log.*
+logs/
+log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =============================================================================
+# BASES DE DATOS LOCALES
+# =============================================================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# =============================================================================
+# KIRO (IDE)
+# =============================================================================
+.kiro/
+
+# =============================================================================
+# MISCELÁNEOS
+# =============================================================================
+
+# Archivos de diagrama sin terminar
+frontend/Untitled-2.mmd
+
+# Archivos de backup
+*.bak
+*.backup
+*.orig
+*.tmp
+*.temp

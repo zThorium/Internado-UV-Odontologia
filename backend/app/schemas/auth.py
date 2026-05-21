@@ -5,7 +5,6 @@ from typing import Literal
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-    recaptcha_token: str | None = None
 
 
 class TokenResponse(BaseModel):

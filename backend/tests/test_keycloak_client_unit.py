@@ -13,6 +13,12 @@ from app.core.security import create_access_token
 pytestmark = pytest.mark.unit
 
 
+@pytest.fixture(autouse=True)
+def reset_keycloak_availability_cache() -> None:
+    kc._keycloak_availability_cache["value"] = None
+    kc._keycloak_availability_cache["checked_at"] = 0.0
+
+
 class _DummyResponse:
     def __init__(
         self,

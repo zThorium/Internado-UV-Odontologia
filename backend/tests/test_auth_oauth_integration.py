@@ -54,6 +54,7 @@ async def test_oauth_callback_refresh_logout_error_paths(
     client: AsyncClient,
     monkeypatch: pytest.MonkeyPatch,
 ):
+    monkeypatch.setattr(auth_router, "is_keycloak_available", lambda: True)
     monkeypatch.setattr(keycloak_client, "exchange_code_for_token", lambda code, redirect: (_ for _ in ()).throw(RuntimeError("invalid")))
     monkeypatch.setattr(keycloak_client, "refresh_access_token", lambda refresh_token: (_ for _ in ()).throw(RuntimeError("expired")))
     monkeypatch.setattr(keycloak_client, "logout_user", lambda refresh_token: (_ for _ in ()).throw(RuntimeError("logout error")))
@@ -153,3 +154,94 @@ async def test_create_user_returns_503_when_keycloak_unavailable(
         headers=auth_headers(coordinator_id, "coordinator"),
     )
     assert resp.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_create_user_rolls_back_keycloak_when_local_commit_fails(
+    client: AsyncClient,
+    db_session,
+    auth_headers,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    coordinator_id = "cccccccc-cccc-cccc-cccc-cccccccccccc"
+    keycloak_id = "33bb33bb-33bb-43bb-83bb-33bb33bb33bb"
+    deleted_ids: list[str] = []
+
+    monkeypatch.setattr(auth_router, "is_keycloak_available", lambda: True)
+    monkeypatch.setattr(auth_router, "create_keycloak_user", lambda **kwargs: keycloak_id)
+    monkeypatch.setattr(auth_router, "assign_role_to_keycloak_user", lambda *_: None)
+    monkeypatch.setattr(auth_router, "delete_keycloak_user", lambda user_id: deleted_ids.append(user_id))
+
+    original_commit = db_session.commit
+    fail_once = {"enabled": True}
+
+    async def _failing_commit_once():
+        if fail_once["enabled"]:
+            fail_once["enabled"] = False
+            raise RuntimeError("db-commit-failed")
+        return await original_commit()
+
+    monkeypatch.setattr(db_session, "commit", _failing_commit_once)
+
+    email = "rollback.auth@internado.cl"
+    resp = await client.post(
+        "/auth/create-user",
+        json={
+            "email": email,
+            "password": "ClaveSegura123",
+            "full_name": "Usuario Rollback",
+            "role": "student",
+        },
+        headers=auth_headers(coordinator_id, "coordinator"),
+    )
+    assert resp.status_code == 500, resp.text
+    assert deleted_ids == [keycloak_id]
+
+    await db_session.rollback()
+    local_user = (
+        await db_session.execute(select(User).where(User.email == email))
+    ).scalar_one_or_none()
+    assert local_user is None
+
+
+@pytest.mark.asyncio
+async def test_create_user_rejects_invalid_tutor_payload_with_422(
+    client: AsyncClient,
+    auth_headers,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    coordinator_id = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+    monkeypatch.setattr(auth_router, "is_keycloak_available", lambda: True)
+
+    resp = await client.post(
+        "/auth/create-user",
+        json={
+            "email": "tutor.invalido@internado.cl",
+            "password": "ClaveSegura123",
+            "full_name": "Tutor Invalido",
+            "role": "tutor",
+            # Faltan campos obligatorios para tutores.
+        },
+        headers=auth_headers(coordinator_id, "coordinator"),
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_create_user_forbidden_for_non_coordinator(
+    client: AsyncClient,
+    auth_headers,
+):
+    student_id = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"
+
+    resp = await client.post(
+        "/auth/create-user",
+        json={
+            "email": "no.permitido@internado.cl",
+            "password": "ClaveSegura123",
+            "full_name": "No Permitido",
+            "role": "student",
+        },
+        headers=auth_headers(student_id, "student"),
+    )
+    assert resp.status_code == 403

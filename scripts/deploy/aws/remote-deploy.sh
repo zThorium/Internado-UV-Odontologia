@@ -76,7 +76,11 @@ echo "[remote-deploy] Construyendo im\u00e1genes (pull latest base)..."
 "${COMPOSE_CMD[@]}" build --pull
 
 echo "[remote-deploy] Levantando stack de producci\u00f3n..."
-"${COMPOSE_CMD[@]}" up -d --remove-orphans
+if ! "${COMPOSE_CMD[@]}" up -d --remove-orphans; then
+  echo "[remote-deploy] 'up' fall\u00f3; aplicando fallback con ciclo down/up..."
+  "${COMPOSE_CMD[@]}" down --remove-orphans
+  "${COMPOSE_CMD[@]}" up -d --remove-orphans
+fi
 
 echo "[remote-deploy] Estado de contenedores:"
 "${COMPOSE_CMD[@]}" ps

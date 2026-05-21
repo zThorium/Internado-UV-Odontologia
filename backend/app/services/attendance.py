@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 
 from app.models.attendance import AttendanceRecord
@@ -46,7 +47,14 @@ async def create_attendance(
         observation=data.observation,
     )
     db.add(record)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Ya existe un registro de asistencia para esta fecha",
+        )
     await db.refresh(record)
     return record
 

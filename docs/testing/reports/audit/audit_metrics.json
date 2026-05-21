@@ -1,7 +1,7 @@
 {
   "inventory": {
     "unit": 8,
-    "integration": 12,
+    "integration": 13,
     "system": 1
   },
   "suite_rates": {
@@ -11,16 +11,16 @@
   },
   "total_cases_by_type": {
     "unit": 85,
-    "integration": 61,
-    "system": 1
+    "integration": 65,
+    "system": 3
   },
-  "trace_rows_count": 21,
+  "trace_rows_count": 22,
   "coverage_rows": [
     {
       "modulo": "core",
-      "lineas_cubiertas": 223,
-      "lineas_totales": 287,
-      "cobertura_pct": 77.7,
+      "lineas_cubiertas": 237,
+      "lineas_totales": 315,
+      "cobertura_pct": 75.24,
       "estado": "RIESGO<80"
     },
     {
@@ -32,8 +32,8 @@
     },
     {
       "modulo": "models",
-      "lineas_cubiertas": 162,
-      "lineas_totales": 162,
+      "lineas_cubiertas": 185,
+      "lineas_totales": 185,
       "cobertura_pct": 100.0,
       "estado": "OK"
     },
@@ -46,32 +46,32 @@
     },
     {
       "modulo": "routers",
-      "lineas_cubiertas": 427,
-      "lineas_totales": 474,
-      "cobertura_pct": 90.08,
+      "lineas_cubiertas": 458,
+      "lineas_totales": 521,
+      "cobertura_pct": 87.91,
       "estado": "OK"
     },
     {
       "modulo": "schemas",
-      "lineas_cubiertas": 143,
-      "lineas_totales": 143,
-      "cobertura_pct": 100.0,
+      "lineas_cubiertas": 186,
+      "lineas_totales": 189,
+      "cobertura_pct": 98.41,
       "estado": "OK"
     },
     {
       "modulo": "services",
-      "lineas_cubiertas": 602,
-      "lineas_totales": 690,
-      "cobertura_pct": 87.25,
+      "lineas_cubiertas": 711,
+      "lineas_totales": 812,
+      "cobertura_pct": 87.56,
       "estado": "OK"
     }
   ],
   "below_80": [
     {
       "modulo": "core",
-      "lineas_cubiertas": 223,
-      "lineas_totales": 287,
-      "cobertura_pct": 77.7,
+      "lineas_cubiertas": 237,
+      "lineas_totales": 315,
+      "cobertura_pct": 75.24,
       "estado": "RIESGO<80"
     },
     {

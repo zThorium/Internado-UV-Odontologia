@@ -96,7 +96,7 @@ async def test_complete_onboarding_marks_user_and_is_idempotent(
 
 
 @pytest.mark.asyncio
-async def test_login_returns_503_when_keycloak_is_unavailable(
+async def test_login_uses_local_fallback_when_keycloak_is_unavailable(
     client: AsyncClient,
     create_user,
     monkeypatch: pytest.MonkeyPatch,
@@ -104,12 +104,17 @@ async def test_login_returns_503_when_keycloak_is_unavailable(
     monkeypatch.setattr(settings, "RECAPTCHA_ENABLED", False)
     user = await create_user("student", email="login503@internado.cl")
     monkeypatch.setattr(auth_router, "is_keycloak_available", lambda: False)
+    monkeypatch.setattr(auth_router, "verify_password", lambda plain, hashed: True)
 
     resp = await client.post(
         "/auth/login",
         json={"email": user.email, "password": "irrelevant"},
     )
-    assert resp.status_code == 503, resp.text
+    assert resp.status_code == 200, resp.text
+    payload = resp.json()
+    assert payload["token_type"] == "bearer"
+    assert isinstance(payload["access_token"], str)
+    assert isinstance(payload["refresh_token"], str)
 
 
 @pytest.mark.asyncio

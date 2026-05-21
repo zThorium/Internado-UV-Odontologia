@@ -15,6 +15,7 @@ const ACCESS_TOKEN_KEY = 'kc_access_token'
 const REFRESH_TOKEN_KEY = 'kc_refresh_token'
 const MAX_REFRESH_ATTEMPTS = 3
 const REFRESH_ATTEMPT_KEY = 'refresh_attempts'
+const WARN_INSECURE_CONNECTION = import.meta.env.VITE_WARN_INSECURE_CONNECTION !== 'false'
 
 function decodeJwt(token) {
   try {
@@ -59,7 +60,7 @@ export function AuthProvider({ children }) {
     setupCSPReporting()
     
     // Warn if not on secure connection in production
-    if (import.meta.env.PROD && !isSecureConnection()) {
+    if (import.meta.env.PROD && WARN_INSECURE_CONNECTION && !isSecureConnection()) {
       console.warn('[Security] Application is not running on HTTPS')
       logSecurityEvent('insecure_connection', {
         protocol: window.location.protocol,
@@ -213,12 +214,11 @@ export function AuthProvider({ children }) {
   // ==========================================
 
   // Login por formulario sin redirección usando Password Grant contra Keycloak
-  const login = async (email, password, recaptchaToken = null) => {
+  const login = async (email, password) => {
     try {
       const { data } = await api.post('/auth/login', { 
         email, 
         password,
-        recaptcha_token: recaptchaToken 
       })
       const accessToken = data.access_token
       const refreshToken = data.refresh_token

@@ -464,3 +464,108 @@ async def test_coordinator_adds_response_to_incident(client: AsyncClient):
     )
     assert resp.status_code == 200, resp.text
     assert resp.json()["coordinator_response"] == "Caso revisado y derivado"
+
+
+# ---------------------------------------------------------------------------
+# Test 12: Tutor no asignado no puede crear incidente para estudiante
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_tutor_cannot_create_incident_for_unassigned_student(
+    client: AsyncClient,
+    db_session: AsyncSession,
+):
+    tutor_id = str(uuid.uuid4())
+    student_id = str(uuid.uuid4())
+
+    await _create_user(db_session, tutor_id, "tutor", "Tutor Sin Asignacion")
+    await _create_user(db_session, student_id, "student", "Estudiante Sin Asignacion")
+
+    resp = await client.post(
+        "/incidents/tutor",
+        json={
+            "student_id": student_id,
+            "title": "Sin asignacion",
+            "description": "Intento no permitido",
+            "event_date": "2026-04-12",
+            "urgency_level": "medium",
+        },
+        headers=_auth(tutor_id, "tutor"),
+    )
+    assert resp.status_code == 403, resp.text
+
+
+# ---------------------------------------------------------------------------
+# Test 13: Payload inválido en incidente de estudiante retorna 422
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_student_create_incident_invalid_payload_returns_422(client: AsyncClient):
+    student_id = str(uuid.uuid4())
+
+    resp = await client.post(
+        "/incidents",
+        json={
+            "incident_type": "invalid_type",
+            "description": "Payload inválido",
+            "event_date": "2026-04-12",
+        },
+        headers=_auth(student_id, "student"),
+    )
+    assert resp.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Test 14: Cambiar estado de incidente inexistente retorna 404
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_coordinator_changes_status_of_missing_incident_returns_404(client: AsyncClient):
+    coordinator_id = str(uuid.uuid4())
+    missing_id = str(uuid.uuid4())
+
+    resp = await client.patch(
+        f"/incidents/{missing_id}/status",
+        json={"status": "under_review"},
+        headers=_auth(coordinator_id, "coordinator"),
+    )
+    assert resp.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# Test 15: Falla de notificación en incidente de tutor no bloquea creación
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_tutor_incident_email_failure_does_not_prevent_creation(
+    client: AsyncClient,
+    db_session: AsyncSession,
+):
+    tutor_id = str(uuid.uuid4())
+    student_id = str(uuid.uuid4())
+
+    await _create_user(db_session, tutor_id, "tutor", "Tutor Resiliente")
+    await _create_user(db_session, student_id, "student", "Estudiante Resiliente")
+    await _create_assignment(db_session, student_id, tutor_id)
+
+    with patch(
+        "app.services.incidents.send_incident_notification",
+        new_callable=AsyncMock,
+        side_effect=Exception("smtp-down"),
+    ):
+        resp = await client.post(
+            "/incidents/tutor",
+            json={
+                "student_id": student_id,
+                "title": "Seguimiento crítico",
+                "description": "Se mantiene creación pese a error de email",
+                "event_date": "2026-04-12",
+                "urgency_level": "high",
+            },
+            headers=_auth(tutor_id, "tutor"),
+        )
+
+    assert resp.status_code == 201, resp.text
+    payload = resp.json()
+    assert payload["reporter_role"] == "tutor"
+    assert payload["student_id"] == student_id

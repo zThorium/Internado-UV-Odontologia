@@ -196,7 +196,7 @@ export default function AppShell({ navLinks, subtitle }) {
           </div>
         </header>
 
-        <main style={{ flex: 1, padding: '2.5rem 3rem', maxWidth: 1100 }} className="main-content">
+        <main className="main-content">
           <Outlet />
         </main>
       </div>
