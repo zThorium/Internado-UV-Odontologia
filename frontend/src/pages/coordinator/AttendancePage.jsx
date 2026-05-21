@@ -166,7 +166,7 @@ export default function CoordinatorAttendancePage() {
       {!loading && searched && !error && stats && (
         <>
           {/* Stats */}
-          <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.25rem' }}>
+          <div className="stagger stats-grid-4" style={{ marginBottom: '1.25rem' }}>
             {[
               { label: 'Total días',   value: stats.total,     color: 'var(--color-ink-700)' },
               { label: 'Presentes',    value: stats.present,   color: 'var(--color-ok-text)' },
@@ -202,7 +202,7 @@ export default function CoordinatorAttendancePage() {
               <EmptyState icon={CalendarCheck} title="Sin registros" description="Este estudiante no tiene registros de asistencia." />
             </div>
           ) : (
-            <div className="card" style={{ overflow: 'hidden' }}>
+            <div className="card table-scroll">
               <table className="table">
                 <thead>
                   <tr>

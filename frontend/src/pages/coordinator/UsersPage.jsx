@@ -233,7 +233,7 @@ export default function UsersPage() {
               <X size={15} />
             </button>
           </div>
-          <form onSubmit={handleCreate} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <form onSubmit={handleCreate} className="form-grid-2">
             <div className="field">
               <label className="label">Rol</label>
               <select
@@ -356,7 +356,7 @@ export default function UsersPage() {
             <EmptyState icon={Users} title="Sin usuarios" description="No hay usuarios registrados." />
           </div>
         ) : (
-          <div className="card" style={{ overflow: 'hidden' }}>
+          <div className="card table-scroll">
             {/* Filters */}
             <div style={{
               padding: '1rem 1.5rem',

@@ -89,7 +89,7 @@ export default function TutorAttendancePage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div className="card" style={{ overflow: 'hidden' }}>
+            <div className="card table-scroll">
               <div style={{ padding: '0.9rem 1rem', borderBottom: '1px solid var(--color-ink-100)' }}>
                 <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-ink-700)' }}>
                   Asistencia por periodo
@@ -117,7 +117,7 @@ export default function TutorAttendancePage() {
               </table>
             </div>
 
-            <div className="card" style={{ overflow: 'hidden' }}>
+            <div className="card table-scroll">
               <div style={{ padding: '0.9rem 1rem', borderBottom: '1px solid var(--color-ink-100)' }}>
                 <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-ink-700)' }}>
                   Registros por semana
@@ -149,7 +149,7 @@ export default function TutorAttendancePage() {
               <EmptyState icon={CalendarCheck} title="Sin registros" description="Este estudiante no tiene registros de asistencia." />
             </div>
           ) : (
-            <div className="card" style={{ overflow: 'hidden' }}>
+            <div className="card table-scroll">
               <table className="table">
                 <thead>
                   <tr>

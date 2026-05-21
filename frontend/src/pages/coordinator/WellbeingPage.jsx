@@ -264,13 +264,7 @@ export default function WellbeingPage() {
       )}
 
       <div className="card" style={{ padding: '1rem 1.25rem', marginBottom: '1rem' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.2fr 0.8fr',
-            gap: '0.75rem',
-          }}
-        >
+        <div className="form-grid-2">
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', top: 12, left: 10, color: 'var(--color-ink-300)' }} />
             <input
@@ -316,13 +310,13 @@ export default function WellbeingPage() {
               <div key={student.student_id} className="card" style={{ padding: '0.95rem 1rem' }}>
                 <div
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.2fr 0.9fr 0.9fr auto',
+                    display: 'flex',
+                    flexWrap: 'wrap',
                     gap: '0.75rem',
-                    alignItems: 'center',
+                    alignItems: 'flex-start',
                   }}
                 >
-                  <div>
+                  <div style={{ flex: '1 1 160px', minWidth: 0 }}>
                     <p style={{ margin: 0, fontWeight: 600, color: 'var(--color-ink-900)' }}>{student.student_name}</p>
                     <div style={{ marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                       <AlertBadge level={student.alert_level} />
@@ -344,23 +338,25 @@ export default function WellbeingPage() {
                     </div>
                   </div>
 
-                  <div>
+                  <div style={{ flex: '1 1 120px', minWidth: 0 }}>
                     <p style={{ margin: '0 0 0.35rem', fontSize: '0.76rem', color: 'var(--color-ink-500)' }}>Historial reciente</p>
                     <WellbeingStrip history={student.history || []} />
                   </div>
 
-                  <div>
+                  <div style={{ flex: '1 1 140px', minWidth: 0 }}>
                     <p style={{ margin: '0 0 0.35rem', fontSize: '0.76rem', color: 'var(--color-ink-500)' }}>Índice de riesgo</p>
                     <ScoreBar value={student.riskScore || 0} />
                   </div>
 
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    onClick={() => setExpanded(expanded === student.student_id ? null : student.student_id)}
-                  >
-                    {expanded === student.student_id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    {expanded === student.student_id ? 'Ocultar' : 'Detalle'}
-                  </button>
+                  <div style={{ flexShrink: 0 }}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => setExpanded(expanded === student.student_id ? null : student.student_id)}
+                    >
+                      {expanded === student.student_id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                      {expanded === student.student_id ? 'Ocultar' : 'Detalle'}
+                    </button>
+                  </div>
                 </div>
 
                 {expanded === student.student_id && (

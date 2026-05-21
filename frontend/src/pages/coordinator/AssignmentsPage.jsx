@@ -90,7 +90,7 @@ export default function AssignmentsPage() {
             </h3>
             <button onClick={() => setShowForm(false)} className="btn btn-ghost btn-sm"><X size={15} /></button>
           </div>
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <form onSubmit={handleSubmit} className="form-grid-2">
             {/* Estudiante */}
             <div className="field">
               <label className="label">Estudiante</label>
@@ -186,7 +186,7 @@ export default function AssignmentsPage() {
             <EmptyState icon={Users} title="Sin asignaciones" description="No hay asignaciones registradas." />
           </div>
         ) : (
-          <div className="card" style={{ overflow: 'hidden' }}>
+          <div className="card table-scroll">
             <div style={{
               padding: '0.875rem 1.5rem',
               borderBottom: '1px solid var(--color-ink-100)',

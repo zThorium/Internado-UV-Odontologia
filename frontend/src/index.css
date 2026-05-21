@@ -1032,6 +1032,7 @@
 
 /* Tablas dentro de cards — scroll horizontal en móvil sin tocar cada componente */
 @media (max-width: 768px) {
+  /* Wrapper de tabla con scroll */
   .card > .table,
   .card > div > .table {
     display: block;
@@ -1043,7 +1044,7 @@
   /* Celdas de tabla no colapsen demasiado */
   .table th,
   .table td {
-    min-width: 100px;
+    min-width: 90px;
     white-space: nowrap;
   }
 
@@ -1054,10 +1055,58 @@
     min-width: 80px;
   }
 
-  /* Ocultar solo columnas intermedias en tablas muy anchas */
+  /* Revertir display:none de breakpoint 480px */
   .table th:nth-child(n+4),
   .table td:nth-child(n+4) {
-    display: table-cell; /* revertir el display:none anterior */
+    display: table-cell;
+  }
+}
+
+/* ── Clases utilitarias responsive para formularios y grids ───────────────── */
+
+/* Formularios de 2 columnas — colapsan a 1 en móvil */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+/* Stats de 3 columnas — colapsan a 2 en tablet, 1 en móvil */
+.stats-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* Stats de 4 columnas — colapsan progresivamente */
+.stats-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* Wrapper de tabla con scroll horizontal */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll .table {
+  min-width: 500px;
+}
+
+@media (max-width: 768px) {
+  .stats-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .stats-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid-3,
+  .stats-grid-4 {
+    grid-template-columns: 1fr;
   }
 }
 

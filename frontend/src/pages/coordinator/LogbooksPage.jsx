@@ -435,7 +435,7 @@ export default function LogbooksPage() {
                   </div>
                 </div>
 
-                <div className="card" style={{ overflow: 'hidden' }}>
+                <div className="card table-scroll">
                   <div style={{
                     padding: '0.875rem 1.5rem',
                     borderBottom: '1px solid var(--color-ink-100)',

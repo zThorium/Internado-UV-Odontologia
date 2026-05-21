@@ -122,9 +122,8 @@ export default function LogbookEditPage() {
           <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 500, color: 'var(--color-ink-700)', margin: '0 0 1rem' }}>
             Información general
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div className="form-grid-2" style={{ marginBottom: '1rem' }}>
             <div className="field" style={{ gridColumn: '1 / -1' }}>
-              <label className="label">Nivel de atención asignado</label>
               <input
                 type="text"
                 value={levelLabel[careLevel] || 'Atención primaria'}
@@ -194,7 +193,7 @@ export default function LogbookEditPage() {
                 padding: '1rem',
                 background: 'var(--color-ink-50)',
               }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-grid-2">
                   <div className="field">
                     <label className="label">Nombre</label>
                     <select

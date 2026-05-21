@@ -82,7 +82,7 @@ export default function LogbookValidationPage() {
         </div>
       </div>
 
-      <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div className="stagger stats-grid-3" style={{ marginBottom: '1rem' }}>
         <div className="card-stat" style={{ textAlign: 'center', padding: '0.9rem' }}>
           <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-ink-500)' }}>Total semanas</p>
           <p style={{ margin: '0.25rem 0 0', fontSize: '1.5rem', fontFamily: 'var(--font-display)', color: 'var(--color-ink-800)' }}>{summary.total}</p>
@@ -109,7 +109,7 @@ export default function LogbookValidationPage() {
           />
         </div>
       ) : (
-        <div className="card" style={{ overflow: 'hidden' }}>
+        <div className="card table-scroll">
           <table className="table">
             <thead>
               <tr>

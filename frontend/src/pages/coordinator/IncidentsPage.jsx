@@ -105,7 +105,7 @@ export default function IncidentsPage() {
 
       {/* Resumen */}
       {!loading && incidents.length > 0 && (
-        <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="stagger stats-grid-3" style={{ marginBottom: '1.5rem' }}>
           <div className="card-stat" style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
             <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-ink-50)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AlertTriangle size={18} style={{ color: 'var(--color-ink-500)' }} />

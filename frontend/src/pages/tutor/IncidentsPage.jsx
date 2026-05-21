@@ -104,7 +104,7 @@ export default function TutorIncidentsPage() {
       </div>
 
       <div className="card" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem' }}>
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <form onSubmit={handleSubmit} className="form-grid-2">
           <div className="field">
             <label className="label">Estudiante</label>
             <select

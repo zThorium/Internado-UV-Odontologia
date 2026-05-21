@@ -107,7 +107,7 @@ export default function LogbookDetailPage() {
       </div>
 
       {/* Tarjeta de resumen */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
         {/* Bienestar */}
         <div className="card" style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{
@@ -152,7 +152,7 @@ export default function LogbookDetailPage() {
       </div>
 
       {/* Lista de procedimientos */}
-      <div className="card" style={{ overflow: 'hidden' }}>
+      <div className="card table-scroll">
         <div style={{
           padding: '0.875rem 1.5rem',
           borderBottom: '1px solid var(--color-ink-100)',
