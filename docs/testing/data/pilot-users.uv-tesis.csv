@@ -1,0 +1,8 @@
+email,full_name,role,password,student_email,tutor_email,clinical_site,care_level
+felipe.vidal@uv.cl,Felipe Vidal,coordinator,PilotoTesis2026!,,,,
+marjorie.borgeat@uv.cl,Marjorie Borgeat,tutor,PilotoTesis2026!,,,,
+karina.cordero@uv.cl,Karina Cordero,tutor,PilotoTesis2026!,,,,
+,,,,estudiante01@demo.internado-uv.cl,marjorie.borgeat@uv.cl,CESFAM Dr. Carlos Lorca Tobar,primary
+,,,,estudiante02@demo.internado-uv.cl,marjorie.borgeat@uv.cl,Hospital Base de Valdivia,secondary
+,,,,estudiante03@demo.internado-uv.cl,karina.cordero@uv.cl,CESFAM Villa Colín,primary
+,,,,estudiante04@demo.internado-uv.cl,karina.cordero@uv.cl,Centro de Salud Familiar Paillaco,primary

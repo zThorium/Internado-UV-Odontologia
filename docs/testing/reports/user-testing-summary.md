@@ -1,6 +1,7 @@
-# Resumen de Pruebas con Usuarios Simulados
+# Pruebas con Usuarios Simulados
 
-Fecha: 2026-04-14 18:25:42 UTC
+Fuente: `docs/testing/data/user-tests-simulated.csv`
+Fecha: 2026-06-02 18:23:21 UTC
 
 ## Metricas globales
 
@@ -15,6 +16,14 @@ Fecha: 2026-04-14 18:25:42 UTC
 | Registrar asistencia | 9 | 10 | 90.0 | `#########-` |
 | Reportar incidente | 9 | 10 | 90.0 | `#########-` |
 | Flujo de evaluacion | 9 | 10 | 90.0 | `#########-` |
+
+## Criterios de exito (protocolo)
+
+- Registrar bitacora: 100.0% — **CUMPLE** (umbral 80%)
+- Registrar asistencia: 90.0% — **CUMPLE** (umbral 80%)
+- Reportar incidente: 90.0% — **CUMPLE** (umbral 80%)
+- Flujo de evaluacion: 90.0% — **CUMPLE** (umbral 80%)
+- Satisfaccion promedio: 4.3 — **CUMPLE** (umbral 4.0)
 
 ## Registro por participante
 
@@ -31,8 +40,8 @@ Fecha: 2026-04-14 18:25:42 UTC
 | P09 | tutor | 1 | 1 | 1 | 1 | 4.0 | Sin bloqueos funcionales |
 | P10 | coordinator | 1 | 1 | 1 | 1 | 5.0 | Flujo completo satisfactorio |
 
-## Discusion
+## Discusion (completar para tesis)
 
-- Se observa alta completitud en bitacora e incidentes.
-- Los principales puntos de mejora se concentran en asistencia y evaluacion para algunos perfiles.
-- Recomendacion: agregar ayudas contextuales para usuarios nuevos.
+- Hallazgos clave:
+- Problemas de usabilidad:
+- Recomendaciones de mejora:

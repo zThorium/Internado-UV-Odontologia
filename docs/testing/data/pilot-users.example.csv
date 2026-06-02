@@ -1,0 +1,5 @@
+email,full_name,role,password,student_email,tutor_email,clinical_site,care_level
+coord.piloto@uv.cl,Coordinador Piloto Tesis,coordinator,PilotoTesis2026!,,,,
+tutor.piloto@uv.cl,Dr. Tutor Piloto,tutor,PilotoTesis2026!,,,,
+estudiante.piloto@uv.cl,Estudiante Piloto Tesis,student,PilotoTesis2026!,,,,
+,,,,estudiante.piloto@uv.cl,tutor.piloto@uv.cl,CESFAM Dr. Carlos Lorca Tobar,primary

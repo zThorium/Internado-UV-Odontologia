@@ -2,8 +2,6 @@
 
 ## Roles que existen en el sistema
 
-Actualmente el backend solo acepta estos roles:
-
 - `coordinator`
 - `tutor`
 - `student`
@@ -18,21 +16,56 @@ Al ejecutar el seed (`python -m scripts.seed`) se crean estas cuentas:
 - Tutor: `tutor@internado-uv.cl` / `tutor123`
 - Estudiante: `estudiante@internado-uv.cl` / `estudiante123`
 
-## Formas de crear cuentas
+## Piloto tesis — usuarios reales (prod)
 
-### 1) Crear cuentas demo (rápido)
+Cohorte **Piloto Tesis 2026**. Roster: [`docs/testing/pilot-users-roster.md`](docs/testing/pilot-users-roster.md).
 
-Desde `backend/`:
+| Email | Rol |
+|-------|-----|
+| felipe.vidal@uv.cl | Coordinador |
+| marjorie.borgeat@uv.cl | Tutora clínica |
+| karina.cordero@uv.cl | Tutora clínica |
+
+Contraseña temporal del piloto: `PilotoTesis2026!` (entregar en persona; agregar estudiantes cuando los tengas).
+
+CSV: [`docs/testing/data/pilot-users.uv-tesis.csv`](docs/testing/data/pilot-users.uv-tesis.csv)
+
+Documentación: [`docs/testing/user-testing-protocol-real.md`](docs/testing/user-testing-protocol-real.md)
+
+### Crear un usuario (cualquier rol)
 
 ```bash
-python -m scripts.seed
+cd backend
+python -m scripts.create_user \
+  --email nombre@uv.cl \
+  --name "Nombre Apellido" \
+  --role student \
+  --password "ContraseñaTemporalSegura"
 ```
 
-Esto intenta crear las 3 cuentas de prueba (si no existen).
+Sincroniza PostgreSQL + Keycloak.
 
-### 2) Crear coordinador personalizado (producción o local)
+### Cohort + assignments desde CSV
 
-Desde `backend/`:
+1. Editar [`docs/testing/data/pilot-users.uv-tesis.csv`](docs/testing/data/pilot-users.uv-tesis.csv) (estudiantes + assignments).
+2. Ejecutar:
+
+```bash
+python -m scripts.seed_pilot_tesis --csv ../docs/testing/data/pilot-users.csv
+```
+
+En EC2:
+
+```bash
+./scripts/deploy/aws/seed-pilot-tesis-prod.sh \
+  --host 18.234.37.107 \
+  --key ~/Downloads/internado-uv.pem \
+  --csv docs/testing/data/pilot-users.uv-tesis.csv
+```
+
+## Otras formas de crear cuentas
+
+### Coordinador (legacy)
 
 ```bash
 COORDINATOR_EMAIL="tu_correo@dominio.com" \
@@ -41,22 +74,8 @@ COORDINATOR_NAME="Nombre Apellido" \
 python -m scripts.create_coordinator
 ```
 
-### 3) Crear tutor o estudiante personalizados
+### Seed desarrollo (3 cuentas base)
 
-No hay script dedicado para crear tutor/estudiante por variables de entorno.
-
-Opciones actuales:
-
-- Editar temporalmente `scripts/seed.py` y agregar usuarios en `SEED_USERS`.
-- Crear un script similar a `create_coordinator.py` para `tutor` y `student`.
-
-## Recomendación
-
-Para trabajo diario, conviene agregar un script único tipo `create_user.py` que reciba:
-
-- `--email`
-- `--password`
-- `--name`
-- `--role` (`student|tutor|coordinator`)
-
-Así puedes crear cualquier cuenta sin tocar código cada vez.
+```bash
+python -m scripts.seed
+```
