@@ -6,9 +6,16 @@ import EmptyState from '../../components/ui/EmptyState'
 import { Search, ClipboardList } from 'lucide-react'
 
 const SCORE_META = {
-  achieved:     { label: 'Logrado',      cls: 'badge-green' },
-  in_progress:  { label: 'En progreso',  cls: 'badge-yellow' },
-  not_achieved: { label: 'No logrado',   cls: 'badge-red' },
+  1: { label: '1', cls: 'badge-red' },
+  2: { label: '2', cls: 'badge-red' },
+  3: { label: '3', cls: 'badge-yellow' },
+  4: { label: '4', cls: 'badge-green' },
+  5: { label: '5', cls: 'badge-green' },
+}
+
+const PERIOD_LABELS = {
+  semester_1: 'Semestre 1',
+  semester_2: 'Semestre 2',
 }
 
 export default function EvaluationsPage() {
@@ -169,11 +176,25 @@ export default function EvaluationsPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <ClipboardList size={16} style={{ color: 'var(--color-uv-500)', flexShrink: 0 }} />
                     <div>
-                      <p style={{ fontWeight: 600, color: 'var(--color-ink-900)', margin: 0 }}>{ev.period}</p>
-                      <p style={{ fontSize: '0.8125rem', color: 'var(--color-ink-500)', margin: 0 }}>{ev.evaluation_date}</p>
+                      <p style={{ fontWeight: 600, color: 'var(--color-ink-900)', margin: 0 }}>
+                        {PERIOD_LABELS[ev.period_label] || ev.period_label}
+                      </p>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--color-ink-500)', margin: 0 }}>
+                        {new Date(ev.created_at).toLocaleDateString('es-CL')} · Tutor: {ev.tutor_name || 'No informado'}
+                      </p>
+                      {ev.clinical_site && (
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-ink-400)', margin: '0.2rem 0 0' }}>
+                          {ev.clinical_site}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <span className="badge badge-blue">{ev.items?.length ?? 0} criterios</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {ev.average_score != null && (
+                      <span className="badge badge-blue">Promedio {ev.average_score}</span>
+                    )}
+                    <span className="badge badge-blue">{ev.items?.length ?? 0} criterios</span>
+                  </div>
                 </button>
 
                 {expanded === ev.id && ev.items?.length > 0 && (

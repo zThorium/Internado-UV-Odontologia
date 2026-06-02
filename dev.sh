@@ -91,6 +91,19 @@ for i in $(seq 1 90); do
   sleep 1
 done
 
+# ─── 5.5. Configurar Keycloak (realm, roles, clientes) ────────────────────────
+info "Configurando Keycloak (realm, roles, clientes)..."
+cd "$ROOT_DIR/backend"
+if python -m scripts.setup_keycloak; then
+  success "Keycloak configurado correctamente"
+  
+  # Actualizar el .env con el client secret correcto
+  info "Actualizando archivo .env con client secret..."
+  python -m scripts.get_and_setup_env >/dev/null 2>&1 || true
+else
+  warn "Hubo un problema configurando Keycloak. Revisa los logs arriba."
+fi
+
 success "Redis listo en localhost:6379"
 success "MinIO listo en http://localhost:9000 (console: http://localhost:9001)"
 

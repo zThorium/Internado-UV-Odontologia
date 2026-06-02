@@ -66,4 +66,5 @@ hypothesis
 pytest
 pytest-asyncio
 pytest-cov
+pytest-html
 # httpx - moved to Keycloak section for version constraint

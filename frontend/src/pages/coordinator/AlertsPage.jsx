@@ -268,7 +268,7 @@ export default function AlertsPage() {
 
       {/* Widget resumen */}
       {summary && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+        <div className="stats-grid-3" style={{ marginBottom: '2rem' }}>
           {[
             { key: 'red',    label: 'Requieren atención inmediata', icon: AlertCircle, color: 'var(--color-err-text)',  bg: '#fff0f0', border: '#fca5a5' },
             { key: 'yellow', label: 'En seguimiento',               icon: AlertTriangle, color: 'var(--color-warn-text)', bg: '#fffbeb', border: '#fcd34d' },

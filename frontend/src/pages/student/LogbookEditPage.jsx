@@ -14,18 +14,33 @@ export default function LogbookEditPage() {
   const [weekNumber, setWeekNumber] = useState('')
   const [weekStartDate, setWeekStartDate] = useState('')
   const [wellbeingStatus, setWellbeingStatus] = useState('')
+  const [careLevel, setCareLevel] = useState('primary')
+  const [allowedProcedures, setAllowedProcedures] = useState([])
   const [procedures, setProcedures] = useState([emptyProcedure()])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    api.get(`/logbook/entries/${id}`)
-      .then(({ data }) => {
+    Promise.all([
+      api.get(`/logbook/entries/${id}`),
+      api.get('/logbook/my-context'),
+    ])
+      .then(([entryRes, contextRes]) => {
+        const data = entryRes.data
+        const context = contextRes.data
+
         setEntry(data)
         setWeekNumber(String(data.week_number || ''))
         setWeekStartDate(data.week_start_date || '')
         setWellbeingStatus(data.wellbeing_status || '')
+        setCareLevel(context.care_level || 'primary')
+
+        const catalog = Array.isArray(context.allowed_procedures) ? context.allowed_procedures : []
+        const currentNames = (data.procedures || []).map((p) => p.name).filter(Boolean)
+        const mergedCatalog = Array.from(new Set([...catalog, ...currentNames]))
+        setAllowedProcedures(mergedCatalog)
+
         if (data.procedures?.length > 0) {
           setProcedures(data.procedures.map((p) => ({
             name: p.name,
@@ -37,6 +52,12 @@ export default function LogbookEditPage() {
       .catch(() => setError('Error al cargar la entrada'))
       .finally(() => setLoading(false))
   }, [id])
+
+  const levelLabel = {
+    primary: 'Atención primaria',
+    secondary: 'Atención secundaria',
+    tertiary: 'Atención terciaria',
+  }
 
   const updateProcedure = (index, field, value) =>
     setProcedures((prev) => prev.map((p, i) => i === index ? { ...p, [field]: value } : p))
@@ -101,7 +122,16 @@ export default function LogbookEditPage() {
           <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 500, color: 'var(--color-ink-700)', margin: '0 0 1rem' }}>
             Información general
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div className="form-grid-2" style={{ marginBottom: '1rem' }}>
+            <div className="field" style={{ gridColumn: '1 / -1' }}>
+              <input
+                type="text"
+                value={levelLabel[careLevel] || 'Atención primaria'}
+                readOnly
+                className="input"
+                style={{ background: 'var(--color-bg-surface)' }}
+              />
+            </div>
             <div className="field">
               <label className="label">Número de semana</label>
               <input
@@ -163,12 +193,21 @@ export default function LogbookEditPage() {
                 padding: '1rem',
                 background: 'var(--color-ink-50)',
               }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-grid-2">
                   <div className="field">
                     <label className="label">Nombre</label>
-                    <input type="text" value={proc.name}
+                    <select
+                      value={proc.name}
                       onChange={(e) => updateProcedure(i, 'name', e.target.value)}
-                      required className="input" style={{ background: 'var(--color-bg-surface)' }} />
+                      required
+                      className="input"
+                      style={{ background: 'var(--color-bg-surface)' }}
+                    >
+                      <option value="" disabled>Selecciona un procedimiento</option>
+                      {allowedProcedures.map((name) => (
+                        <option key={name} value={name}>{name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="field">
                     <label className="label">Cantidad</label>
@@ -179,10 +218,13 @@ export default function LogbookEditPage() {
                   <div className="field" style={{ gridColumn: '1 / -1' }}>
                     <label className="label">
                       Descripción
-                      <span style={{ color: 'var(--color-ink-300)', fontWeight: 400, marginLeft: '0.25rem' }}>(opcional)</span>
+                      <span style={{ color: 'var(--color-ink-300)', fontWeight: 400, marginLeft: '0.25rem' }}>
+                        {proc.name === 'Otro' ? '(obligatoria para "Otro")' : '(opcional)'}
+                      </span>
                     </label>
                     <input type="text" value={proc.description}
                       onChange={(e) => updateProcedure(i, 'description', e.target.value)}
+                      required={proc.name === 'Otro'}
                       className="input" style={{ background: 'var(--color-bg-surface)' }} />
                   </div>
                 </div>

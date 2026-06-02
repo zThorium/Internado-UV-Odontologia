@@ -45,10 +45,7 @@ class EvaluationItem(Base):
         sa.UUID(as_uuid=True), sa.ForeignKey("evaluations.id"), nullable=False, index=True
     )
     dimension: Mapped[str] = mapped_column(sa.String, nullable=False)
-    score: Mapped[str] = mapped_column(
-        sa.Enum("achieved", "in_progress", "not_achieved", name="evaluation_score"),
-        nullable=False,
-    )
+    score: Mapped[int] = mapped_column(sa.Integer, nullable=False)
     comment: Mapped[str | None] = mapped_column(sa.String, nullable=True)
 
     evaluation: Mapped["Evaluation"] = relationship(

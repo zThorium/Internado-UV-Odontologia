@@ -5,10 +5,12 @@ import './index.css'
 import App from './App.jsx'
 
 // Configuración de inicialización de Keycloak
+// NO intentar autenticación automática - la app usa login por formulario
 const keycloakProviderInitConfig = {
-  // En modo login por formulario no usamos check-sso silencioso.
+  onLoad: undefined,  // No cargar automáticamente
   pkceMethod: 'S256',  // PKCE para seguridad en clientes públicos
-  checkLoginIframe: false // Desactivar iframe para mejor rendimiento en dev
+  checkLoginIframe: false, // Desactivar iframe
+  flow: 'standard' // Authorization Code Flow con PKCE
 }
 
 // Event handlers para logging (útil para debugging)
@@ -83,3 +85,4 @@ style.textContent = `
   }
 `
 document.head.appendChild(style)
+

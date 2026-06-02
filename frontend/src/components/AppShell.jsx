@@ -10,6 +10,7 @@ const TOUR_KEY_MAP = {
   '/student/attendance':      'student-attendance',
   '/student/incidents':       'student-incidents',
   '/tutor':                   'tutor-students',
+  '/tutor/incidents':         'tutor-incidents',
   '/coordinator/overview':    'coordinator-overview',
   '/coordinator/alerts':      'coordinator-alerts',
   '/coordinator/logbooks':    'coordinator-logbooks',
@@ -18,6 +19,7 @@ const TOUR_KEY_MAP = {
   '/coordinator/incidents':   'coordinator-incidents',
   '/coordinator/wellbeing':   'coordinator-wellbeing',
   '/coordinator/assignments': 'coordinator-assignments',
+  '/coordinator/cohorts':     'coordinator-cohorts',
   '/coordinator/users':       'coordinator-users',
 }
 
@@ -194,7 +196,7 @@ export default function AppShell({ navLinks, subtitle }) {
           </div>
         </header>
 
-        <main style={{ flex: 1, padding: '2.5rem 3rem', maxWidth: 1100 }} className="main-content">
+        <main className="main-content">
           <Outlet />
         </main>
       </div>

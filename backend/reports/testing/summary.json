@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-04-16T04:55:54.496009+00:00",
+  "coverage_percent": 88.86,
+  "suites": [
+    {
+      "name": "unit",
+      "marker": "unit",
+      "exit_code": 0,
+      "tests": 85,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 85,
+      "time_seconds": 2.169,
+      "junit_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/unit/junit.xml",
+      "html_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/unit/report.html"
+    },
+    {
+      "name": "integration",
+      "marker": "integration",
+      "exit_code": 0,
+      "tests": 75,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 75,
+      "time_seconds": 3.58,
+      "junit_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/integration/junit.xml",
+      "html_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/integration/report.html"
+    },
+    {
+      "name": "system",
+      "marker": "system",
+      "exit_code": 0,
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 7,
+      "time_seconds": 0.391,
+      "junit_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/system/junit.xml",
+      "html_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/system/report.html"
+    },
+    {
+      "name": "acceptance",
+      "marker": "acceptance",
+      "exit_code": 0,
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 6,
+      "time_seconds": 0.278,
+      "junit_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/acceptance/junit.xml",
+      "html_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/acceptance/report.html"
+    }
+  ],
+  "all": {
+    "name": "all",
+    "marker": null,
+    "exit_code": 0,
+    "tests": 173,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 173,
+    "time_seconds": 6.629,
+    "junit_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/all/junit.xml",
+    "html_path": "/Users/thorium/Developer/Proyectos/Internado-UV-Odontologia/backend/reports/testing/all/report.html"
+  }
+}

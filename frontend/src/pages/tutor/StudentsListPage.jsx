@@ -4,7 +4,7 @@ import api from '../../services/api'
 import Spinner from '../../components/ui/Spinner'
 import { AlertError } from '../../components/ui/Alert'
 import EmptyState from '../../components/ui/EmptyState'
-import { Users, ClipboardList, CalendarCheck, MapPin } from 'lucide-react'
+import { Users, ClipboardList, CalendarCheck, MapPin, ClipboardCheck } from 'lucide-react'
 
 export default function StudentsListPage() {
   const [students, setStudents] = useState([])
@@ -68,12 +68,20 @@ export default function StudentsListPage() {
                 </div>
 
                 {/* Actions */}
-                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   <button
-                    onClick={() => navigate(`/tutor/evaluate/${s.assignment_id}?student_id=${s.id}`)}
+                    onClick={() => navigate(
+                      `/tutor/evaluate/${s.assignment_id}?student_id=${s.id}&name=${encodeURIComponent(s.full_name)}&site=${encodeURIComponent(s.clinical_site)}&tutor=${encodeURIComponent(s.tutor_name || '')}`,
+                    )}
                     className="btn btn-primary btn-sm"
                   >
                     <ClipboardList size={13} /> Evaluar
+                  </button>
+                  <button
+                    onClick={() => navigate(`/tutor/logbook/${s.id}?name=${encodeURIComponent(s.full_name)}`)}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <ClipboardCheck size={13} /> Bitácora
                   </button>
                   <button
                     onClick={() => navigate(`/tutor/attendance/${s.id}?name=${encodeURIComponent(s.full_name)}`)}

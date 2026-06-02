@@ -20,6 +20,25 @@ const TYPE_ICON_COLOR = {
   other:          'var(--color-earth-500)',
 }
 
+const URGENCY_LABELS = {
+  low: 'Baja',
+  medium: 'Media',
+  high: 'Alta',
+  critical: 'Crítica',
+}
+
+const URGENCY_CLS = {
+  low: 'badge-blue',
+  medium: 'badge-yellow',
+  high: 'badge-red',
+  critical: 'badge-red',
+}
+
+const REPORTER_LABELS = {
+  student: 'Estudiante',
+  tutor: 'Tutor',
+}
+
 export default function IncidentsPage() {
   const [incidents, setIncidents] = useState([])
   const [loading, setLoading] = useState(true)
@@ -86,7 +105,7 @@ export default function IncidentsPage() {
 
       {/* Resumen */}
       {!loading && incidents.length > 0 && (
-        <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="stagger stats-grid-3" style={{ marginBottom: '1.5rem' }}>
           <div className="card-stat" style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
             <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-ink-50)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AlertTriangle size={18} style={{ color: 'var(--color-ink-500)' }} />
@@ -140,10 +159,16 @@ export default function IncidentsPage() {
                     </div>
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <p style={{ fontWeight: 600, color: 'var(--color-ink-900)', margin: 0 }}>
-                        {TYPE_LABELS[inc.incident_type] || inc.incident_type}
+                        {inc.title || TYPE_LABELS[inc.incident_type] || inc.incident_type}
                       </p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-ink-500)' }}>
                         <span>{inc.event_date}</span>
+                        {inc.reporter_role && (
+                          <>
+                            <span>•</span>
+                            <span>Reporta: {REPORTER_LABELS[inc.reporter_role] || inc.reporter_role}</span>
+                          </>
+                        )}
                         {inc.student_name && (
                           <>
                             <span>•</span>
@@ -157,6 +182,11 @@ export default function IncidentsPage() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                    {inc.urgency_level && (
+                      <span className={`badge ${URGENCY_CLS[inc.urgency_level] || 'badge-gray'}`}>
+                        Urgencia {URGENCY_LABELS[inc.urgency_level] || inc.urgency_level}
+                      </span>
+                    )}
                     <Badge status={inc.status} />
                     <button
                       onClick={() => setExpanded(expanded === inc.id ? null : inc.id)}
@@ -204,6 +234,9 @@ export default function IncidentsPage() {
                         </p>
                         <p style={{ fontSize: '0.9rem', color: 'var(--color-ink-700)', margin: 0, lineHeight: 1.6 }}>
                           {inc.description}
+                        </p>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--color-ink-500)', margin: '0.5rem 0 0' }}>
+                          Tipo: {TYPE_LABELS[inc.incident_type] || inc.incident_type}
                         </p>
                       </div>
                     )}

@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     KEYCLOAK_CLIENT_ID: str = "internado-backend"
     KEYCLOAK_CLIENT_SECRET: str = ""
     KEYCLOAK_REDIRECT_URI: str = "http://localhost:5173/callback"
+    KEYCLOAK_REQUEST_TIMEOUT_SECONDS: int = 5
     
     # Admin credentials for user management operations
     KEYCLOAK_ADMIN_USERNAME: str = "admin"
@@ -60,12 +61,9 @@ class Settings(BaseSettings):
     MAIL_USE_TLS: bool = False
 
     # ==========================================
-    # reCAPTCHA v2
+    # reCAPTCHA (eliminado)
     # ==========================================
-    RECAPTCHA_SECRET_KEY: str = "6Ldh5pksAAAAAMF8OQwyLQi00Q126kxh50iDN_IN"
-    # IMPORTANTE: Cambiar a True en producción para habilitar reCAPTCHA
-    # Para desarrollo, está desactivado para facilitar las pruebas
-    RECAPTCHA_ENABLED: bool = False  # ⚠️ Cambiar a True en producción
+    RECAPTCHA_ENABLED: bool = False
 
     # ==========================================
     # HashiCorp Vault (FASE 3)
@@ -95,6 +93,11 @@ class Settings(BaseSettings):
     # Environment
     # ==========================================
     ENVIRONMENT: str = "development"
+
+    # ==========================================
+    # Tutor workflow
+    # ==========================================
+    TUTOR_LOGBOOK_VALIDATION_ALERT_WEEKS: int = 2
 
 
 settings = Settings()

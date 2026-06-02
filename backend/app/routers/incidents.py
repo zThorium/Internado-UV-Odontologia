@@ -6,23 +6,30 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.deps import require_role
 from app.db.session import get_db
 from app.schemas.auth import UserInToken
-from app.schemas.incidents import IncidentCreate, IncidentOut, IncidentStatusUpdate, IncidentResponseUpdate
+from app.schemas.incidents import (
+    IncidentCreate,
+    IncidentOut,
+    IncidentResponseUpdate,
+    IncidentStatusUpdate,
+    TutorIncidentCreate,
+)
 from app.services.incidents import (
-    submit_incident,
     get_incidents,
+    submit_incident,
+    submit_incident_as_tutor,
     update_incident_status,
     update_incident_response,
 )
 
 router = APIRouter()
 
-_student_or_coordinator = Depends(require_role("student", "coordinator"))
+_student_tutor_or_coordinator = Depends(require_role("student", "tutor", "coordinator"))
 _coordinator_only = Depends(require_role("coordinator"))
 
 
 @router.get("", response_model=list[IncidentOut])
 async def list_incidents(
-    current_user: UserInToken = _student_or_coordinator,
+    current_user: UserInToken = _student_tutor_or_coordinator,
     db: AsyncSession = Depends(get_db),
 ):
     return await get_incidents(current_user, db)
@@ -37,10 +44,19 @@ async def create_incident(
     return await submit_incident(incident, current_user, db)
 
 
+@router.post("/tutor", response_model=IncidentOut, status_code=status.HTTP_201_CREATED)
+async def create_incident_as_tutor(
+    incident: TutorIncidentCreate,
+    current_user: UserInToken = Depends(require_role("tutor")),
+    db: AsyncSession = Depends(get_db),
+):
+    return await submit_incident_as_tutor(incident, current_user, db)
+
+
 @router.get("/{incident_id}", response_model=IncidentOut)
 async def get_incident(
     incident_id: UUID,
-    current_user: UserInToken = _student_or_coordinator,
+    current_user: UserInToken = _student_tutor_or_coordinator,
     db: AsyncSession = Depends(get_db),
 ):
     from fastapi import HTTPException
@@ -55,6 +71,8 @@ async def get_incident(
 
     if current_user.role == "student" and str(incident.student_id) != current_user.id:
         raise HTTPException(status_code=403, detail="No puedes ver incidentes de otro estudiante")
+    if current_user.role == "tutor" and str(incident.reported_by_user_id) != current_user.id:
+        raise HTTPException(status_code=403, detail="No puedes ver incidentes de otro tutor")
 
     return incident
 

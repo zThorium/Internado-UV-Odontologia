@@ -9,9 +9,11 @@ from fastapi import HTTPException
 
 from app.models.logbook import LogbookEntry, LogbookProcedure
 from app.models.assignment import Assignment
+from app.models.logbook_validation import LogbookValidation
 from app.schemas.logbook import LogbookEntryCreate, LogbookEntryUpdate, LogbookStatusUpdate
 from app.schemas.auth import UserInToken
 from app.services.wellbeing import evaluate_and_create_alert
+from app.services.procedure_catalog import get_procedure_catalog, normalize_care_level
 
 
 async def _resolve_cohort_id(student_id: UUID, provided: UUID | None, db: AsyncSession) -> UUID:
@@ -38,6 +40,48 @@ async def _resolve_cohort_id(student_id: UUID, provided: UUID | None, db: AsyncS
     return assignment.cohort_id
 
 
+async def _get_active_assignment(student_id: UUID, db: AsyncSession) -> Assignment | None:
+    result = await db.execute(
+        select(Assignment).where(
+            Assignment.student_id == student_id,
+            Assignment.is_active.is_(True),
+        ).limit(1)
+    )
+    return result.scalar_one_or_none()
+
+
+async def _get_active_assignment_for_tutor_student(
+    tutor_id: UUID,
+    student_id: UUID,
+    db: AsyncSession,
+) -> Assignment | None:
+    result = await db.execute(
+        select(Assignment).where(
+            Assignment.tutor_id == tutor_id,
+            Assignment.student_id == student_id,
+            Assignment.is_active.is_(True),
+        ).limit(1)
+    )
+    return result.scalar_one_or_none()
+
+
+def _validate_procedures_for_assignment(entry_procedures, assignment: Assignment | None) -> None:
+    if assignment is None:
+        return
+
+    allowed = set(get_procedure_catalog(assignment.care_level))
+    invalid = [p.name for p in entry_procedures if p.name not in allowed]
+    if invalid:
+        care_level = normalize_care_level(assignment.care_level)
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Hay procedimientos no permitidos para el nivel de atención "
+                f"'{care_level}': {', '.join(sorted(set(invalid)))}"
+            ),
+        )
+
+
 async def create_logbook_entry(
     entry: LogbookEntryCreate,
     current_user: UserInToken,
@@ -59,9 +103,11 @@ async def create_logbook_entry(
     Si ya existe entrada para esa semana/cohorte → lanza HTTPException(409)
     """
     student_id = uuid.UUID(current_user.id)
+    assignment = await _get_active_assignment(student_id, db)
 
     # Resolver cohort_id desde assignment activo si no se proveyó
     cohort_id = await _resolve_cohort_id(student_id, entry.cohort_id, db)
+    _validate_procedures_for_assignment(entry.procedures, assignment)
 
     # 1. Verificar unicidad: no debe existir entrada para (student_id, week_number, cohort_id)
     result = await db.execute(
@@ -119,7 +165,10 @@ async def create_logbook_entry(
     # Recargar con procedimientos usando selectinload para evitar lazy-loading
     result = await db.execute(
         select(LogbookEntry)
-        .options(selectinload(LogbookEntry.procedures))
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
         .where(LogbookEntry.id == entry_obj.id)
     )
     return result.scalar_one()
@@ -145,11 +194,15 @@ async def update_logbook_entry(
     - Retorna la entrada actualizada con sus procedimientos
     """
     student_id = uuid.UUID(current_user.id)
+    assignment = await _get_active_assignment(student_id, db)
 
     # 1. Obtener la entrada con procedimientos cargados
     result = await db.execute(
         select(LogbookEntry)
-        .options(selectinload(LogbookEntry.procedures))
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
         .where(LogbookEntry.id == entry_id)
     )
     entry = result.scalar_one_or_none()
@@ -175,6 +228,8 @@ async def update_logbook_entry(
         entry.wellbeing_status = updates.wellbeing_status
 
     # 6. Reemplazar procedimientos: eliminar existentes e insertar nuevos
+    _validate_procedures_for_assignment(updates.procedures, assignment)
+
     for proc in list(entry.procedures):
         await db.delete(proc)
     await db.flush()
@@ -195,7 +250,10 @@ async def update_logbook_entry(
     await db.commit()
     result = await db.execute(
         select(LogbookEntry)
-        .options(selectinload(LogbookEntry.procedures))
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
         .where(LogbookEntry.id == entry.id)
         .execution_options(populate_existing=True)
     )
@@ -236,7 +294,38 @@ async def get_logbook_entries(
 
     result = await db.execute(
         select(LogbookEntry)
-        .options(selectinload(LogbookEntry.procedures))
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
+        .where(LogbookEntry.student_id == student_id)
+        .order_by(LogbookEntry.week_number.asc())
+    )
+    return list(result.scalars().all())
+
+
+async def get_logbook_entries_for_tutor(
+    student_id: UUID,
+    current_user: UserInToken,
+    db: AsyncSession,
+) -> list[LogbookEntry]:
+    """
+    Tutor puede ver bitácora solo de estudiantes asignados activamente.
+    """
+    tutor_id = uuid.UUID(current_user.id)
+    assignment = await _get_active_assignment_for_tutor_student(tutor_id, student_id, db)
+    if assignment is None:
+        raise HTTPException(
+            status_code=403,
+            detail="Solo puedes revisar bitácoras de estudiantes asignados",
+        )
+
+    result = await db.execute(
+        select(LogbookEntry)
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
         .where(LogbookEntry.student_id == student_id)
         .order_by(LogbookEntry.week_number.asc())
     )
@@ -255,7 +344,10 @@ async def get_logbook_entry_by_id(
     """
     result = await db.execute(
         select(LogbookEntry)
-        .options(selectinload(LogbookEntry.procedures))
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
         .where(LogbookEntry.id == entry_id)
     )
     entry = result.scalar_one_or_none()
@@ -265,6 +357,17 @@ async def get_logbook_entry_by_id(
 
     if current_user.role == "student" and str(entry.student_id) != current_user.id:
         raise HTTPException(status_code=403, detail="No puedes ver entradas de otro estudiante")
+    if current_user.role == "tutor":
+        assignment = await _get_active_assignment_for_tutor_student(
+            uuid.UUID(current_user.id),
+            entry.student_id,
+            db,
+        )
+        if assignment is None:
+            raise HTTPException(
+                status_code=403,
+                detail="Solo puedes ver entradas de estudiantes asignados",
+            )
 
     return entry
 
@@ -283,7 +386,10 @@ async def update_logbook_entry_status(
     """
     result = await db.execute(
         select(LogbookEntry)
-        .options(selectinload(LogbookEntry.procedures))
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
         .where(LogbookEntry.id == entry_id)
     )
     entry = result.scalar_one_or_none()
@@ -296,7 +402,69 @@ async def update_logbook_entry_status(
 
     result = await db.execute(
         select(LogbookEntry)
-        .options(selectinload(LogbookEntry.procedures))
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
         .where(LogbookEntry.id == entry_id)
     )
     return result.scalar_one()
+
+
+async def validate_logbook_entry_by_tutor(
+    entry_id: UUID,
+    current_user: UserInToken,
+    db: AsyncSession,
+) -> LogbookEntry:
+    """
+    Registra validación simple de una entrada de bitácora por parte del tutor.
+    """
+    tutor_id = uuid.UUID(current_user.id)
+
+    result = await db.execute(
+        select(LogbookEntry)
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
+        .where(LogbookEntry.id == entry_id)
+    )
+    entry = result.scalar_one_or_none()
+    if entry is None:
+        raise HTTPException(status_code=404, detail="Entrada no encontrada")
+
+    assignment = await _get_active_assignment_for_tutor_student(tutor_id, entry.student_id, db)
+    if assignment is None:
+        raise HTTPException(
+            status_code=403,
+            detail="Solo puedes validar bitácoras de estudiantes asignados activamente",
+        )
+
+    if entry.tutor_validation is None:
+        validation = LogbookValidation(
+            entry_id=entry.id,
+            student_id=entry.student_id,
+            tutor_id=tutor_id,
+            assignment_id=assignment.id,
+        )
+        db.add(validation)
+        await db.flush()
+        entry.tutor_validation = validation
+        await db.commit()
+
+        # Re-evaluar alertas para reflejar validación reciente.
+        try:
+            from app.services.alerts import run_alert_evaluation
+            await run_alert_evaluation(db)
+        except Exception:
+            pass
+
+    refreshed = await db.execute(
+        select(LogbookEntry)
+        .options(
+            selectinload(LogbookEntry.procedures),
+            selectinload(LogbookEntry.tutor_validation),
+        )
+        .where(LogbookEntry.id == entry_id)
+    )
+    return refreshed.scalar_one()

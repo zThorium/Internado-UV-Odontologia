@@ -6,7 +6,7 @@ Ejecutar desde el directorio backend/:
 
 Crea:
     - 1 cohorte activa (Internado 2026-1)
-    - 3 usuarios: coordinador, tutor, estudiante
+    - 3 usuarios: coordinador, tutor, estudiante (en DB y Keycloak)
     - 1 assignment: estudiante → tutor, en Hospital Base Valdivia, cohorte 2026-1
 
 Credenciales:
@@ -22,12 +22,15 @@ from pathlib import Path
 from datetime import date
 
 from sqlalchemy import select
+from keycloak import KeycloakAdmin
+from keycloak.exceptions import KeycloakError
 
 from app.db.session import AsyncSessionLocal
 from app.models.user import User
 from app.models.cohort import Cohort
 from app.models.assignment import Assignment
 from app.core.security import hash_password
+from app.core.config import settings
 
 
 SEED_USERS = [
@@ -85,6 +88,23 @@ def _start_local_db_if_possible() -> bool:
 
 
 async def seed() -> None:
+    # Conectar a Keycloak
+    try:
+        # IMPORTANTE: Conectar al realm master primero para autenticación
+        keycloak_admin = KeycloakAdmin(
+            server_url=settings.KEYCLOAK_SERVER_URL,
+            username=settings.KEYCLOAK_ADMIN_USERNAME,
+            password=settings.KEYCLOAK_ADMIN_PASSWORD,
+            realm_name=settings.KEYCLOAK_REALM,  # Realm donde se crearán los usuarios
+            user_realm_name="master",  # Realm donde vive el usuario admin
+            verify=True
+        )
+        print(f"[keycloak] Conectado a Keycloak (realm: {settings.KEYCLOAK_REALM})")
+    except Exception as e:
+        print(f"[keycloak] ⚠️  No se pudo conectar a Keycloak: {e}")
+        print("[keycloak] Los usuarios se crearán solo en la base de datos local")
+        keycloak_admin = None
+    
     async with AsyncSessionLocal() as session:
 
         # ── Usuarios ──────────────────────────────────────────────────────
@@ -95,7 +115,7 @@ async def seed() -> None:
             )
             existing = result.scalar_one_or_none()
             if existing:
-                print(f"[skip]    {data['email']} ya existe")
+                print(f"[skip]    {data['email']} ya existe en DB")
                 users[data["role"]] = existing
             else:
                 user = User(
@@ -103,11 +123,57 @@ async def seed() -> None:
                     hashed_password=hash_password(data["password"]),
                     full_name=data["full_name"],
                     role=data["role"],
+                    has_completed_onboarding=True,  # Usuarios de seed ya completaron onboarding
                 )
                 session.add(user)
                 await session.flush()
                 users[data["role"]] = user
-                print(f"[created] {data['email']} ({data['role']})")
+                print(f"[created] {data['email']} ({data['role']}) en DB")
+            
+            # Crear usuario en Keycloak
+            if keycloak_admin:
+                try:
+                    # Verificar si el usuario ya existe en Keycloak
+                    existing_users = keycloak_admin.get_users({"email": data["email"]})
+                    
+                    if existing_users:
+                        keycloak_user_id = existing_users[0]["id"]
+                        print(f"[skip]    {data['email']} ya existe en Keycloak")
+                        
+                        # Actualizar el ID del usuario en la BD si no coincide
+                        if str(users[data["role"]].id) != keycloak_user_id:
+                            users[data["role"]].id = keycloak_user_id
+                            await session.flush()
+                    else:
+                        # Crear usuario en Keycloak
+                        keycloak_user_id = keycloak_admin.create_user({
+                            "email": data["email"],
+                            "username": data["email"],
+                            "enabled": True,
+                            "emailVerified": True,
+                            "firstName": data["full_name"].split()[0],
+                            "lastName": " ".join(data["full_name"].split()[1:]) if len(data["full_name"].split()) > 1 else "",
+                            "credentials": [{
+                                "type": "password",
+                                "value": data["password"],
+                                "temporary": False
+                            }]
+                        })
+                        print(f"[created] {data['email']} en Keycloak (ID: {keycloak_user_id})")
+                        
+                        # Asignar rol en Keycloak
+                        role_obj = keycloak_admin.get_realm_role(data["role"])
+                        keycloak_admin.assign_realm_roles(keycloak_user_id, [role_obj])
+                        print(f"[assigned] rol '{data['role']}' a {data['email']} en Keycloak")
+                        
+                        # Actualizar el ID del usuario en la BD para que coincida con Keycloak
+                        users[data["role"]].id = keycloak_user_id
+                        await session.flush()
+                        
+                except KeycloakError as e:
+                    print(f"[error]   Error creando {data['email']} en Keycloak: {e}")
+                except Exception as e:
+                    print(f"[error]   Error inesperado con {data['email']} en Keycloak: {e}")
 
         # ── Cohorte ───────────────────────────────────────────────────────
         result = await session.execute(

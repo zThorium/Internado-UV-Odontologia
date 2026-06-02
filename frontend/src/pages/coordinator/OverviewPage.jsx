@@ -81,9 +81,9 @@ function MetricSparkline({ points, color }) {
   ]
 
   return (
-    <div style={{ width: 130, height: 62 }}>
+    <div style={{ width: '100%', height: 56 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={{ top: 8, right: 2, left: 2, bottom: 2 }}>
+        <AreaChart data={chartData} margin={{ top: 6, right: 4, left: 4, bottom: 2 }}>
           <defs>
             <linearGradient id={`spark-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity={0.24} />

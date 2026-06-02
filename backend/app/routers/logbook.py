@@ -24,19 +24,23 @@ from app.schemas.wellbeing import (
 from app.services.logbook import (
     create_logbook_entry,
     get_logbook_entries,
+    get_logbook_entries_for_tutor,
     get_logbook_entry_by_id,
     update_logbook_entry,
     update_logbook_entry_status,
+    validate_logbook_entry_by_tutor,
 )
 from app.services.wellbeing import (
     get_coordinator_wellbeing_summary,
     get_student_wellbeing_history,
     resolve_alert,
 )
+from app.services.procedure_catalog import get_procedure_catalog, normalize_care_level
 
 router = APIRouter()
 
 _student_or_coordinator = Depends(require_role("student", "coordinator"))
+_student_tutor_or_coordinator = Depends(require_role("student", "tutor", "coordinator"))
 _coordinator_only = Depends(require_role("coordinator"))
 
 
@@ -72,7 +76,9 @@ async def my_logbook_context(
         "cohort_id": str(assignment.cohort_id),
         "week_number": week_number,
         "week_start_date": str(week_start),
+        "care_level": normalize_care_level(assignment.care_level),
         "clinical_site": assignment.clinical_site,
+        "allowed_procedures": get_procedure_catalog(assignment.care_level),
     }
 
 
@@ -96,10 +102,28 @@ async def create_entry(
 @router.get("/entries/{entry_id}", response_model=LogbookEntryOut)
 async def get_entry(
     entry_id: UUID,
-    current_user: UserInToken = _student_or_coordinator,
+    current_user: UserInToken = _student_tutor_or_coordinator,
     db: AsyncSession = Depends(get_db),
 ):
     return await get_logbook_entry_by_id(entry_id, current_user, db)
+
+
+@router.get("/tutor/students/{student_id}/entries", response_model=list[LogbookEntryOut])
+async def list_student_entries_for_tutor(
+    student_id: UUID,
+    current_user: UserInToken = Depends(require_role("tutor")),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_logbook_entries_for_tutor(student_id, current_user, db)
+
+
+@router.post("/entries/{entry_id}/validate", response_model=LogbookEntryOut)
+async def validate_entry_by_tutor(
+    entry_id: UUID,
+    current_user: UserInToken = Depends(require_role("tutor")),
+    db: AsyncSession = Depends(get_db),
+):
+    return await validate_logbook_entry_by_tutor(entry_id, current_user, db)
 
 
 @router.put("/entries/{entry_id}", response_model=LogbookEntryOut)

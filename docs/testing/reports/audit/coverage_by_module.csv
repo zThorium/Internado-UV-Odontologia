@@ -1,0 +1,8 @@
+modulo,lineas_cubiertas,lineas_totales,cobertura_pct,estado
+core,237,315,75.24,RIESGO<80
+db,9,13,69.23,RIESGO<70
+models,185,185,100.0,OK
+root,22,23,95.65,OK
+routers,458,521,87.91,OK
+schemas,186,189,98.41,OK
+services,711,812,87.56,OK

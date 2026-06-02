@@ -127,7 +127,7 @@ export default function AttendancePage() {
             Nuevo registro
           </h3>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 480 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-grid-2">
               <div className="field">
                 <label className="label">Fecha</label>
                 <input type="date" value={form.date}
@@ -176,7 +176,7 @@ export default function AttendancePage() {
             <EmptyState icon={CalendarCheck} title="Sin registros" description="Aún no tienes registros de asistencia." />
           </div>
         ) : (
-          <div className="card" style={{ overflow: 'hidden' }}>
+          <div className="card table-scroll">
             <table className="table">
               <thead>
                 <tr>

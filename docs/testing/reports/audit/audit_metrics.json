@@ -1,0 +1,103 @@
+{
+  "inventory": {
+    "unit": 8,
+    "integration": 13,
+    "system": 1
+  },
+  "suite_rates": {
+    "unit": 100.0,
+    "integration": 100.0,
+    "system": 100.0
+  },
+  "total_cases_by_type": {
+    "unit": 85,
+    "integration": 65,
+    "system": 3
+  },
+  "trace_rows_count": 22,
+  "coverage_rows": [
+    {
+      "modulo": "core",
+      "lineas_cubiertas": 237,
+      "lineas_totales": 315,
+      "cobertura_pct": 75.24,
+      "estado": "RIESGO<80"
+    },
+    {
+      "modulo": "db",
+      "lineas_cubiertas": 9,
+      "lineas_totales": 13,
+      "cobertura_pct": 69.23,
+      "estado": "RIESGO<70"
+    },
+    {
+      "modulo": "models",
+      "lineas_cubiertas": 185,
+      "lineas_totales": 185,
+      "cobertura_pct": 100.0,
+      "estado": "OK"
+    },
+    {
+      "modulo": "root",
+      "lineas_cubiertas": 22,
+      "lineas_totales": 23,
+      "cobertura_pct": 95.65,
+      "estado": "OK"
+    },
+    {
+      "modulo": "routers",
+      "lineas_cubiertas": 458,
+      "lineas_totales": 521,
+      "cobertura_pct": 87.91,
+      "estado": "OK"
+    },
+    {
+      "modulo": "schemas",
+      "lineas_cubiertas": 186,
+      "lineas_totales": 189,
+      "cobertura_pct": 98.41,
+      "estado": "OK"
+    },
+    {
+      "modulo": "services",
+      "lineas_cubiertas": 711,
+      "lineas_totales": 812,
+      "cobertura_pct": 87.56,
+      "estado": "OK"
+    }
+  ],
+  "below_80": [
+    {
+      "modulo": "core",
+      "lineas_cubiertas": 237,
+      "lineas_totales": 315,
+      "cobertura_pct": 75.24,
+      "estado": "RIESGO<80"
+    },
+    {
+      "modulo": "db",
+      "lineas_cubiertas": 9,
+      "lineas_totales": 13,
+      "cobertura_pct": 69.23,
+      "estado": "RIESGO<70"
+    }
+  ],
+  "below_70": [
+    {
+      "modulo": "db",
+      "lineas_cubiertas": 9,
+      "lineas_totales": 13,
+      "cobertura_pct": 69.23,
+      "estado": "RIESGO<70"
+    }
+  ],
+  "artifacts": {
+    "traceability_csv": "docs/testing/reports/audit/traceability_matrix_unit_integration_system.csv",
+    "coverage_csv": "docs/testing/reports/audit/coverage_by_module.csv",
+    "pass_rate_csv": "docs/testing/reports/audit/pass_rate_by_suite.csv",
+    "cases_csv": "docs/testing/reports/audit/cases_distribution_by_module.csv",
+    "pass_rate_svg": "docs/testing/reports/audit/pass_rate_by_suite.svg",
+    "coverage_svg": "docs/testing/reports/audit/coverage_by_module.svg",
+    "cases_svg": "docs/testing/reports/audit/cases_distribution_by_module.svg"
+  }
+}

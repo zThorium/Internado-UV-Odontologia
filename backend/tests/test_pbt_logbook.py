@@ -23,6 +23,9 @@ from app.db.session import Base, get_db
 from app.core.security import create_access_token
 
 
+pytestmark = [pytest.mark.integration, pytest.mark.property]
+
+
 # ---------------------------------------------------------------------------
 # Fixtures: base de datos SQLite en memoria compartida para los PBT
 # ---------------------------------------------------------------------------
@@ -43,6 +46,7 @@ def _entry_payload(cohort_id: uuid.UUID, week: int = 1) -> dict:
         "cohort_id": str(cohort_id),
         "week_number": week,
         "week_start_date": str(date(2024, 1, 1)),
+        "wellbeing_status": "good",
         "procedures": [
             {"name": "Extracción", "description": "Molar inferior", "quantity": 2}
         ],

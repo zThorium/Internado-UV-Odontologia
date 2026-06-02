@@ -16,12 +16,15 @@ import StudentsListPage from './pages/tutor/StudentsListPage'
 import EvaluationFormPage from './pages/tutor/EvaluationFormPage'
 import ConfirmationPage from './pages/tutor/ConfirmationPage'
 import TutorAttendancePage from './pages/tutor/AttendancePage'
+import TutorIncidentsPage from './pages/tutor/IncidentsPage'
+import TutorLogbookValidationPage from './pages/tutor/LogbookValidationPage'
 import OverviewPage from './pages/coordinator/OverviewPage'
 import LogbooksPage from './pages/coordinator/LogbooksPage'
 import LogbookDetailPage from './pages/coordinator/LogbookDetailPage'
 import EvaluationsPage from './pages/coordinator/EvaluationsPage'
 import CoordinatorIncidentsPage from './pages/coordinator/IncidentsPage'
 import AssignmentsPage from './pages/coordinator/AssignmentsPage'
+import CohortsPage from './pages/coordinator/CohortsPage'
 import UsersPage from './pages/coordinator/UsersPage'
 import CoordinatorAttendancePage from './pages/coordinator/AttendancePage'
 import WellbeingPage from './pages/coordinator/WellbeingPage'
@@ -63,8 +66,10 @@ export default function App() {
             }
           >
             <Route index element={<StudentsListPage />} />
+            <Route path="incidents" element={<TutorIncidentsPage />} />
             <Route path="evaluate/:assignment_id" element={<EvaluationFormPage />} />
             <Route path="confirmation" element={<ConfirmationPage />} />
+            <Route path="logbook/:student_id" element={<TutorLogbookValidationPage />} />
             <Route path="attendance/:student_id" element={<TutorAttendancePage />} />
           </Route>
 
@@ -84,6 +89,7 @@ export default function App() {
             <Route path="evaluations" element={<EvaluationsPage />} />
             <Route path="incidents" element={<CoordinatorIncidentsPage />} />
             <Route path="assignments" element={<AssignmentsPage />} />
+            <Route path="cohorts" element={<CohortsPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="attendance" element={<CoordinatorAttendancePage />} />
             <Route path="wellbeing" element={<WellbeingPage />} />

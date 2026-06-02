@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { AlertError } from '../components/ui/Alert'
-
-const RECAPTCHA_SITE_KEY = '6Ldh5pksAAAAAN1daWsi6zKicrHUU8QdzLL9cdPo'
 
 export default function LoginPage() {
   const { login, user, isLoading } = useAuth()
@@ -12,8 +10,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const recaptchaRef = useRef(null)
-  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false)
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -27,73 +23,12 @@ export default function LoginPage() {
     }
   }, [user, isLoading, navigate])
 
-  // Load reCAPTCHA script
-  useEffect(() => {
-    // Callback que se ejecuta cuando reCAPTCHA está listo
-    window.onRecaptchaLoad = () => {
-      setRecaptchaLoaded(true)
-    }
-
-    const loadRecaptcha = () => {
-      // Si ya está cargado, marcar como listo
-      if (window.grecaptcha && window.grecaptcha.render) {
-        setRecaptchaLoaded(true)
-        return
-      }
-
-      // Si el script ya existe, no agregarlo de nuevo
-      if (document.querySelector('script[src*="recaptcha"]')) {
-        return
-      }
-
-      const script = document.createElement('script')
-      script.src = `https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`
-      script.async = true
-      script.defer = true
-      document.head.appendChild(script)
-    }
-
-    loadRecaptcha()
-
-    return () => {
-      delete window.onRecaptchaLoad
-    }
-  }, [])
-
-  // Render reCAPTCHA widget when loaded
-  useEffect(() => {
-    if (recaptchaLoaded && recaptchaRef.current && !recaptchaRef.current.hasChildNodes()) {
-      try {
-        window.grecaptcha.render(recaptchaRef.current, {
-          sitekey: RECAPTCHA_SITE_KEY,
-          theme: 'light',
-          size: 'normal',
-        })
-      } catch (error) {
-        console.error('Error renderizando reCAPTCHA:', error)
-      }
-    }
-  }, [recaptchaLoaded])
-
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
-    
-    // Obtener token de reCAPTCHA (opcional si está desactivado en backend)
-    let recaptchaToken = null
-    if (window.grecaptcha && recaptchaRef.current) {
-      try {
-        recaptchaToken = window.grecaptcha.getResponse()
-        // Solo requerir captcha si está cargado y visible
-        // Si el backend tiene RECAPTCHA_ENABLED=false, aceptará null
-      } catch (err) {
-        console.error('Error obteniendo token de reCAPTCHA:', err)
-      }
-    }
-    
     setLoading(true)
     try {
-      const role = await login(email, password, recaptchaToken)
+      const role = await login(email, password)
 
       // Navigate to appropriate dashboard based on role
       const dashboards = {
@@ -103,19 +38,12 @@ export default function LoginPage() {
       }
       navigate(dashboards[role] || '/login')
     } catch (error) {
-      // Reset reCAPTCHA en caso de error
-      if (window.grecaptcha) {
-        window.grecaptcha.reset()
-      }
-      
       if (error?.response?.status === 429) {
         setError('Demasiados intentos. Espera un momento y vuelve a intentar.')
       } else if (error?.response?.status === 503) {
         setError('Servicio de autenticación no disponible. Intenta en unos segundos.')
       } else if (!error?.response) {
-        setError('No se pudo conectar al servidor. Verifica que backend esté activo en http://localhost:8000.')
-      } else if (error?.response?.data?.detail?.includes('reCAPTCHA')) {
-        setError('Verificación de seguridad fallida. Por favor, intenta nuevamente.')
+        setError('No se pudo conectar al servidor. Verifica la configuración de conexión entre frontend y backend.')
       } else {
         setError(error?.response?.data?.detail || 'Error al iniciar sesión.')
       }
@@ -248,10 +176,6 @@ export default function LoginPage() {
 
               <AlertError>{error}</AlertError>
 
-              {/* reCAPTCHA widget */}
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
-                <div ref={recaptchaRef}></div>
-              </div>
 
               <button
                 type="submit"

@@ -7,7 +7,14 @@ import { Users, Plus, X, MapPin } from 'lucide-react'
 
 const EMPTY_FORM = {
   student_id: '', tutor_id: '', cohort_id: '',
+  care_level: 'primary',
   clinical_site: '', start_date: '', end_date: '',
+}
+
+const CARE_LEVEL_LABEL = {
+  primary: 'Atención primaria',
+  secondary: 'Atención secundaria',
+  tertiary: 'Atención terciaria',
 }
 
 export default function AssignmentsPage() {
@@ -83,7 +90,7 @@ export default function AssignmentsPage() {
             </h3>
             <button onClick={() => setShowForm(false)} className="btn btn-ghost btn-sm"><X size={15} /></button>
           </div>
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <form onSubmit={handleSubmit} className="form-grid-2">
             {/* Estudiante */}
             <div className="field">
               <label className="label">Estudiante</label>
@@ -133,6 +140,15 @@ export default function AssignmentsPage() {
             </div>
 
             <div className="field">
+              <label className="label">Nivel de atención</label>
+              <select name="care_level" value={form.care_level} onChange={handleChange} required className="input">
+                <option value="primary">Atención primaria</option>
+                <option value="secondary">Atención secundaria</option>
+                <option value="tertiary">Atención terciaria</option>
+              </select>
+            </div>
+
+            <div className="field">
               <label className="label">Fecha inicio</label>
               <input type="date" name="start_date" value={form.start_date} onChange={handleChange} required className="input" />
             </div>
@@ -170,7 +186,7 @@ export default function AssignmentsPage() {
             <EmptyState icon={Users} title="Sin asignaciones" description="No hay asignaciones registradas." />
           </div>
         ) : (
-          <div className="card" style={{ overflow: 'hidden' }}>
+          <div className="card table-scroll">
             <div style={{
               padding: '0.875rem 1.5rem',
               borderBottom: '1px solid var(--color-ink-100)',
@@ -187,6 +203,7 @@ export default function AssignmentsPage() {
                   <th>Estudiante</th>
                   <th>Tutor</th>
                   <th>Sede</th>
+                  <th>Nivel</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -201,6 +218,11 @@ export default function AssignmentsPage() {
                         <MapPin size={13} style={{ color: 'var(--color-earth-500)', flexShrink: 0 }} />
                         <span style={{ fontWeight: 500 }}>{a.clinical_site}</span>
                       </div>
+                    </td>
+                    <td>
+                      <span className="badge badge-blue">
+                        {CARE_LEVEL_LABEL[a.care_level] || 'Atención primaria'}
+                      </span>
                     </td>
                     <td>
                       <span className={`badge ${a.is_active ? 'badge-green' : 'badge-gray'}`}>

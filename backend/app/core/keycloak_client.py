@@ -14,15 +14,23 @@ from keycloak.exceptions import KeycloakError
 from typing import Dict, Optional
 from app.core.config import settings
 import logging
+import time
 
 logger = logging.getLogger(__name__)
+
+_KEYCLOAK_AVAILABILITY_TTL_SECONDS = 30
+_keycloak_availability_cache: dict[str, float | bool | None] = {
+    "value": None,
+    "checked_at": 0.0,
+}
 
 # Cliente Keycloak OpenID
 keycloak_openid = KeycloakOpenID(
     server_url=settings.KEYCLOAK_SERVER_URL,
     client_id=settings.KEYCLOAK_CLIENT_ID,
     realm_name=settings.KEYCLOAK_REALM,
-    client_secret_key=settings.KEYCLOAK_CLIENT_SECRET if settings.KEYCLOAK_CLIENT_SECRET else None
+    client_secret_key=settings.KEYCLOAK_CLIENT_SECRET if settings.KEYCLOAK_CLIENT_SECRET else None,
+    timeout=settings.KEYCLOAK_REQUEST_TIMEOUT_SECONDS,
 )
 
 
@@ -245,11 +253,22 @@ def is_keycloak_available() -> bool:
     Returns:
         True si Keycloak está disponible, False en caso contrario
     """
+    now = time.monotonic()
+    cached_value = _keycloak_availability_cache["value"]
+    checked_at = float(_keycloak_availability_cache["checked_at"] or 0.0)
+
+    if cached_value is not None and (now - checked_at) < _KEYCLOAK_AVAILABILITY_TTL_SECONDS:
+        return bool(cached_value)
+
     try:
         keycloak_openid.well_known()
+        _keycloak_availability_cache["value"] = True
+        _keycloak_availability_cache["checked_at"] = now
         return True
     except Exception as e:
         logger.warning(f"Keycloak no disponible: {e}")
+        _keycloak_availability_cache["value"] = False
+        _keycloak_availability_cache["checked_at"] = now
         return False
 
 

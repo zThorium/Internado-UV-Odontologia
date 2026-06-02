@@ -8,12 +8,13 @@ from sqlalchemy.orm import aliased
 
 from app.core.security import hash_password
 from app.models.assignment import Assignment
+from app.models.cohort import Cohort
 from app.models.incident import Incident
 from app.models.logbook import LogbookEntry
 from app.models.evaluation import Evaluation
 from app.models.student_alert import StudentAlert
 from app.models.user import User
-from app.schemas.dashboard import AssignmentCreate, TutorCreate
+from app.schemas.dashboard import AssignmentCreate, CohortCreate, CohortUpdate, TutorCreate
 from app.services.email import send_welcome_email
 
 
@@ -66,11 +67,86 @@ async def get_dashboard_overview(
     }
 
 
+async def list_cohorts(db: AsyncSession) -> list[Cohort]:
+    result = await db.execute(
+        select(Cohort).order_by(Cohort.year.desc(), Cohort.semester.desc())
+    )
+    return list(result.scalars().all())
+
+
+async def create_cohort(data: CohortCreate, db: AsyncSession) -> Cohort:
+    exists = await db.scalar(
+        select(Cohort).where(
+            Cohort.year == data.year,
+            Cohort.semester == data.semester,
+        )
+    )
+    if exists is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Ya existe una cohorte para ese año y semestre",
+        )
+
+    cohort_name = (data.name or "").strip() or f"Internado {data.year}-{data.semester}"
+
+    cohort = Cohort(
+        name=cohort_name,
+        year=data.year,
+        semester=data.semester,
+        is_active=data.is_active,
+    )
+    db.add(cohort)
+    await db.commit()
+    await db.refresh(cohort)
+    return cohort
+
+
+async def update_cohort(
+    cohort_id: UUID,
+    data: CohortUpdate,
+    db: AsyncSession,
+) -> Cohort:
+    cohort = await db.get(Cohort, cohort_id)
+    if cohort is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cohorte no encontrada")
+
+    if data.name is not None:
+        cleaned = data.name.strip()
+        if not cleaned:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="El nombre no puede estar vacío")
+        cohort.name = cleaned
+
+    if data.is_active is False and cohort.is_active:
+        active_assignments = (await db.scalar(
+            select(func.count()).select_from(Assignment).where(
+                Assignment.cohort_id == cohort_id,
+                Assignment.is_active.is_(True),
+            )
+        )) or 0
+        if active_assignments > 0:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "No puedes desactivar esta cohorte porque tiene "
+                    f"{active_assignments} asignación(es) activa(s). "
+                    "Desactiva primero esas asignaciones."
+                ),
+            )
+
+    if data.is_active is not None:
+        cohort.is_active = data.is_active
+
+    await db.commit()
+    await db.refresh(cohort)
+    return cohort
+
+
 async def create_assignment(data: AssignmentCreate, db: AsyncSession) -> Assignment:
     assignment = Assignment(
         student_id=data.student_id,
         tutor_id=data.tutor_id,
         cohort_id=data.cohort_id,
+        care_level=data.care_level,
         clinical_site=data.clinical_site,
         start_date=data.start_date,
         end_date=data.end_date,
@@ -111,6 +187,7 @@ async def list_assignments(
             "student_id": a.student_id,
             "tutor_id": a.tutor_id,
             "cohort_id": a.cohort_id,
+            "care_level": a.care_level,
             "clinical_site": a.clinical_site,
             "start_date": a.start_date,
             "end_date": a.end_date,
@@ -143,6 +220,9 @@ async def create_tutor(data: TutorCreate, db: AsyncSession) -> User:
         full_name=data.full_name,
         hashed_password=hash_password(data.password),
         role="tutor",
+        profession=data.profession,
+        available_hours_per_week=data.available_hours_per_week,
+        tutor_training_status=data.tutor_training_status,
         is_active=True,
     )
     db.add(tutor)
@@ -175,6 +255,9 @@ async def update_tutor(
     tutor_id: UUID,
     full_name: str | None,
     is_active: bool | None,
+    profession: str | None,
+    available_hours_per_week: int | None,
+    tutor_training_status: str | None,
     db: AsyncSession,
 ) -> User:
     tutor = await db.get(User, tutor_id)
@@ -184,6 +267,12 @@ async def update_tutor(
         tutor.full_name = full_name
     if is_active is not None:
         tutor.is_active = is_active
+    if profession is not None:
+        tutor.profession = profession
+    if available_hours_per_week is not None:
+        tutor.available_hours_per_week = available_hours_per_week
+    if tutor_training_status is not None:
+        tutor.tutor_training_status = tutor_training_status
     await db.commit()
     await db.refresh(tutor)
     return tutor

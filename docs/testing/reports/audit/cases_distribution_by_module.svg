@@ -1,0 +1,66 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1250' height='620'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='625.0' y='35' text-anchor='middle' font-family='Arial' font-size='24'>Distribucion de Casos por Modulo</text>
+<line x1='80' y1='70' x2='80' y2='460' stroke='black' stroke-width='2'/>
+<line x1='80' y1='460' x2='1220' y2='460' stroke='black' stroke-width='2'/>
+<line x1='80' y1='460.0' x2='1220' y2='460.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='464.0' text-anchor='end' font-family='Arial' font-size='12'>0.0</text>
+<line x1='80' y1='382.0' x2='1220' y2='382.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='386.0' text-anchor='end' font-family='Arial' font-size='12'>4.6</text>
+<line x1='80' y1='304.0' x2='1220' y2='304.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='308.0' text-anchor='end' font-family='Arial' font-size='12'>9.2</text>
+<line x1='80' y1='226.0' x2='1220' y2='226.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='230.0' text-anchor='end' font-family='Arial' font-size='12'>13.8</text>
+<line x1='80' y1='148.0' x2='1220' y2='148.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='152.0' text-anchor='end' font-family='Arial' font-size='12'>18.4</text>
+<line x1='80' y1='70.0' x2='1220' y2='70.0' stroke='#dddddd' stroke-width='1'/>
+<text x='70' y='74.0' text-anchor='end' font-family='Arial' font-size='12'>23.0</text>
+<rect x='94.2' y='70.0' width='42.8' height='390.0' fill='#457b9d'/>
+<text x='115.6' y='62.0' text-anchor='middle' font-family='Arial' font-size='12'>23</text>
+<text x='115.6' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 115.6,482.0)'>Autorizacion por Rol</text>
+<rect x='165.5' y='103.9' width='42.8' height='356.1' fill='#457b9d'/>
+<text x='186.9' y='95.9' text-anchor='middle' font-family='Arial' font-size='12'>21</text>
+<text x='186.9' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 186.9,482.0)'>IAM Keycloak</text>
+<rect x='236.8' y='188.7' width='42.8' height='271.3' fill='#457b9d'/>
+<text x='258.1' y='180.7' text-anchor='middle' font-family='Arial' font-size='12'>16</text>
+<text x='258.1' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 258.1,482.0)'>Bitacora</text>
+<rect x='308.0' y='239.6' width='42.8' height='220.4' fill='#457b9d'/>
+<text x='329.4' y='231.6' text-anchor='middle' font-family='Arial' font-size='12'>13</text>
+<text x='329.4' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 329.4,482.0)'>Seguridad</text>
+<rect x='379.2' y='256.5' width='42.8' height='203.5' fill='#457b9d'/>
+<text x='400.6' y='248.5' text-anchor='middle' font-family='Arial' font-size='12'>12</text>
+<text x='400.6' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 400.6,482.0)'>Autenticacion</text>
+<rect x='450.5' y='273.5' width='42.8' height='186.5' fill='#457b9d'/>
+<text x='471.9' y='265.5' text-anchor='middle' font-family='Arial' font-size='12'>11</text>
+<text x='471.9' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 471.9,482.0)'>Incidentes</text>
+<rect x='521.8' y='290.4' width='42.8' height='169.6' fill='#457b9d'/>
+<text x='543.1' y='282.4' text-anchor='middle' font-family='Arial' font-size='12'>10</text>
+<text x='543.1' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 543.1,482.0)'>Autenticacion y Dependencias</text>
+<rect x='593.0' y='307.4' width='42.8' height='152.6' fill='#457b9d'/>
+<text x='614.4' y='299.4' text-anchor='middle' font-family='Arial' font-size='12'>9</text>
+<text x='614.4' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 614.4,482.0)'>Catalogo de Procedimientos</text>
+<rect x='664.2' y='341.3' width='42.8' height='118.7' fill='#457b9d'/>
+<text x='685.6' y='333.3' text-anchor='middle' font-family='Arial' font-size='12'>7</text>
+<text x='685.6' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 685.6,482.0)'>Dashboard y Coordinacion</text>
+<rect x='735.5' y='341.3' width='42.8' height='118.7' fill='#457b9d'/>
+<text x='756.9' y='333.3' text-anchor='middle' font-family='Arial' font-size='12'>7</text>
+<text x='756.9' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 756.9,482.0)'>Evaluaciones</text>
+<rect x='806.8' y='375.2' width='42.8' height='84.8' fill='#457b9d'/>
+<text x='828.1' y='367.2' text-anchor='middle' font-family='Arial' font-size='12'>5</text>
+<text x='828.1' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 828.1,482.0)'>Asistencia</text>
+<rect x='878.0' y='375.2' width='42.8' height='84.8' fill='#457b9d'/>
+<text x='899.4' y='367.2' text-anchor='middle' font-family='Arial' font-size='12'>5</text>
+<text x='899.4' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 899.4,482.0)'>Bienestar</text>
+<rect x='949.2' y='392.2' width='42.8' height='67.8' fill='#457b9d'/>
+<text x='970.6' y='384.2' text-anchor='middle' font-family='Arial' font-size='12'>4</text>
+<text x='970.6' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 970.6,482.0)'>Servicios de Seguridad</text>
+<rect x='1020.5' y='426.1' width='42.8' height='33.9' fill='#457b9d'/>
+<text x='1041.9' y='418.1' text-anchor='middle' font-family='Arial' font-size='12'>2</text>
+<text x='1041.9' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 1041.9,482.0)'>Alertas Tempranas</text>
+<rect x='1091.8' y='443.0' width='42.8' height='17.0' fill='#457b9d'/>
+<text x='1113.1' y='435.0' text-anchor='middle' font-family='Arial' font-size='12'>1</text>
+<text x='1113.1' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 1113.1,482.0)'>Bitacora y Bienestar</text>
+<rect x='1163.0' y='443.0' width='42.8' height='17.0' fill='#457b9d'/>
+<text x='1184.4' y='435.0' text-anchor='middle' font-family='Arial' font-size='12'>1</text>
+<text x='1184.4' y='482.0' text-anchor='middle' font-family='Arial' font-size='12' transform='rotate(25 1184.4,482.0)'>Sistema E2E</text>
+</svg>

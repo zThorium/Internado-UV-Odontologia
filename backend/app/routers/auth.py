@@ -1,4 +1,5 @@
 from datetime import timedelta
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +7,12 @@ from sqlalchemy import select
 
 from jose import JWTError
 
-from app.core.security import create_access_token, decode_access_token, hash_password
+from app.core.security import (
+    create_access_token,
+    decode_access_token,
+    hash_password,
+    verify_password,
+)
 from app.core.deps import get_current_user, require_role
 from app.db.session import get_db
 from app.models.user import User
@@ -33,6 +39,37 @@ router = APIRouter()
 
 _INVALID_CREDENTIALS = "Credenciales inválidas"
 
+_LOCAL_REFRESH_TOKEN_DAYS = 7
+
+
+def _build_local_tokens_response(user: User) -> dict:
+    """Construye access/refresh tokens locales cuando Keycloak no está disponible."""
+    access_token = create_access_token(
+        {
+            "sub": str(user.id),
+            "role": user.role,
+            "realm_access": {"roles": [user.role]},
+            "auth_provider": "local",
+            "type": "access",
+        }
+    )
+    refresh_token = create_access_token(
+        {
+            "sub": str(user.id),
+            "role": user.role,
+            "auth_provider": "local",
+            "type": "refresh",
+        },
+        expires_delta=timedelta(days=_LOCAL_REFRESH_TOKEN_DAYS),
+    )
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "expires_in": 60 * 60,
+        "token_type": "bearer",
+        "has_completed_onboarding": user.has_completed_onboarding,
+    }
+
 
 @router.post("/login", response_model=dict)
 @limiter.limit("20/minute")
@@ -42,26 +79,8 @@ async def login(request: Request, credentials: LoginRequest, db: AsyncSession = 
 
     Retorna tokens OIDC válidos de Keycloak para consumo del frontend.
     """
-    from app.services.recaptcha import verify_recaptcha
     from app.core.config import settings
     from keycloak.exceptions import KeycloakAuthenticationError, KeycloakError
-    
-    # Validar reCAPTCHA si está habilitado
-    if settings.RECAPTCHA_ENABLED:
-        client_ip = request.client.host if request.client else None
-        is_valid = await verify_recaptcha(credentials.recaptcha_token, client_ip)
-        if not is_valid:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Validación de reCAPTCHA fallida. Por favor, intenta nuevamente.",
-            )
-    
-    if not is_keycloak_available():
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Servicio de autenticación no disponible. Por favor, intenta más tarde.",
-        )
-
     # Verificar si el usuario existe en la BD local
     result = await db.execute(
         select(User).where(User.email == credentials.email)
@@ -81,6 +100,15 @@ async def login(request: Request, credentials: LoginRequest, db: AsyncSession = 
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Tu cuenta ha sido desactivada. Contacta al coordinador.",
         )
+
+    # Fallback local: permitir login con contraseña local si Keycloak no está disponible.
+    if not is_keycloak_available():
+        if not verify_password(credentials.password, user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="La contraseña ingresada es incorrecta.",
+            )
+        return _build_local_tokens_response(user)
 
     # Intentar autenticar con Keycloak
     try:
@@ -168,7 +196,14 @@ async def reset_password(request: ResetPasswordRequest, db: AsyncSession = Depen
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token inválido o expirado")
 
     user_id = payload.get("sub")
-    result = await db.execute(select(User).where(User.id == user_id))
+    from uuid import UUID
+
+    try:
+        user_uuid = UUID(str(user_id))
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token inválido o expirado")
+
+    result = await db.execute(select(User).where(User.id == user_uuid))
     user = result.scalar_one_or_none()
 
     if user is None:
@@ -245,7 +280,7 @@ async def oauth_callback(code: str, redirect_uri: str | None = None):
 
 
 @router.post("/refresh", response_model=dict)
-async def refresh_token(refresh_token: str):
+async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
     """
     Renueva el access token usando un refresh token válido.
 
@@ -267,6 +302,33 @@ async def refresh_token(refresh_token: str):
         HTTPException(401): Si el refresh token es inválido o ha expirado
     """
     from app.core.keycloak_client import refresh_access_token
+
+    # Intentar primero refresh local (tokens legacy de contingencia)
+    try:
+        payload = decode_access_token(refresh_token)
+        if payload.get("auth_provider") == "local" and payload.get("type") == "refresh":
+            user_id = payload.get("sub")
+
+            try:
+                user_uuid = UUID(str(user_id))
+            except Exception:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+                )
+
+            result = await db.execute(select(User).where(User.id == user_uuid))
+            user = result.scalar_one_or_none()
+            if user is None or not user.is_active:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+                )
+
+            return _build_local_tokens_response(user)
+    except JWTError:
+        # Si no es token local válido, intentar refresh con Keycloak.
+        pass
 
     try:
         tokens = refresh_access_token(refresh_token)
@@ -293,6 +355,18 @@ async def logout(refresh_token: str):
         HTTPException(400): Si hay un error en el logout
     """
     from app.core.keycloak_client import logout_user
+
+    # Si es refresh token local, no hay revocación remota que ejecutar.
+    try:
+        payload = decode_access_token(refresh_token)
+        if payload.get("auth_provider") == "local" and payload.get("type") == "refresh":
+            return MessageResponse(message="Sesión cerrada correctamente")
+    except JWTError:
+        pass
+
+    # Si Keycloak está caído, el frontend igualmente limpia credenciales locales.
+    if not is_keycloak_available():
+        return MessageResponse(message="Sesión cerrada correctamente")
 
     try:
         logout_user(refresh_token)
@@ -387,6 +461,13 @@ async def create_user(
             hashed_password=hash_password(user_data.password),
             full_name=user_data.full_name,
             role=user_data.role,
+            profession=user_data.profession if user_data.role == "tutor" else None,
+            available_hours_per_week=(
+                user_data.available_hours_per_week if user_data.role == "tutor" else None
+            ),
+            tutor_training_status=(
+                user_data.tutor_training_status if user_data.role == "tutor" else None
+            ),
             is_active=True,
             has_completed_onboarding=False,
         )
@@ -401,6 +482,9 @@ async def create_user(
             email=new_user.email,
             full_name=new_user.full_name,
             role=new_user.role,
+            profession=new_user.profession,
+            available_hours_per_week=new_user.available_hours_per_week,
+            tutor_training_status=new_user.tutor_training_status,
             message=f"Usuario {user_data.role} creado exitosamente"
         )
         

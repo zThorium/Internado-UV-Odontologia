@@ -105,7 +105,7 @@ export default function LogbookPage() {
             </div>
           )}
 
-          <div className="card" style={{ overflow: 'hidden' }}>
+          <div className="card table-scroll">
             <table className="table">
               <thead>
                 <tr>

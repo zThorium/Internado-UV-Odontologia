@@ -2,8 +2,12 @@ from datetime import date
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Literal
+
+
+CareLevel = Literal["primary", "secondary", "tertiary"]
+TutorTrainingStatus = Literal["yes", "no", "in_progress"]
 
 
 class DashboardStats(BaseModel):
@@ -19,6 +23,7 @@ class AssignmentCreate(BaseModel):
     student_id: UUID
     tutor_id: UUID
     cohort_id: UUID
+    care_level: CareLevel = "primary"
     clinical_site: str
     start_date: date
     end_date: date
@@ -29,6 +34,7 @@ class AssignmentOut(BaseModel):
     student_id: UUID
     tutor_id: UUID
     cohort_id: UUID
+    care_level: CareLevel
     clinical_site: str
     start_date: date
     end_date: date
@@ -39,10 +45,34 @@ class AssignmentOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CohortOut(BaseModel):
+    id: UUID
+    name: str
+    year: int
+    semester: int
+    is_active: bool
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CohortCreate(BaseModel):
+    year: int = Field(ge=2020, le=2100)
+    semester: int = Field(ge=1, le=2)
+    name: str | None = None
+    is_active: bool = True
+
+
+class CohortUpdate(BaseModel):
+    name: str | None = None
+    is_active: bool | None = None
+
+
 class TutorCreate(BaseModel):
     email: EmailStr
     full_name: str
     password: str
+    profession: str
+    available_hours_per_week: int = Field(ge=1, le=80)
+    tutor_training_status: TutorTrainingStatus
 
 
 class TutorOut(BaseModel):
@@ -50,6 +80,9 @@ class TutorOut(BaseModel):
     email: str
     full_name: str
     is_active: bool
+    profession: str | None = None
+    available_hours_per_week: int | None = None
+    tutor_training_status: TutorTrainingStatus | None = None
     model_config = ConfigDict(from_attributes=True)
 
 

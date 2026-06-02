@@ -2,6 +2,7 @@ from app.models.user import User
 from app.models.cohort import Cohort
 from app.models.assignment import Assignment
 from app.models.logbook import LogbookEntry, LogbookProcedure
+from app.models.logbook_validation import LogbookValidation
 from app.models.incident import Incident
 from app.models.evaluation import Evaluation, EvaluationItem
 from app.models.attendance import AttendanceRecord
@@ -14,6 +15,7 @@ __all__ = [
     "Assignment",
     "LogbookEntry",
     "LogbookProcedure",
+    "LogbookValidation",
     "Incident",
     "Evaluation",
     "EvaluationItem",

@@ -1,9 +1,10 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
+from jose import JWTError, jwt
 import logging
 
 from app.schemas.auth import UserInToken
+from app.core.security import decode_access_token
 from app.core.keycloak_client import (
     validate_token,
     decode_token,
@@ -21,6 +22,10 @@ def _looks_like_keycloak_token(token: str) -> bool:
     try:
         claims = jwt.get_unverified_claims(token)
     except Exception:
+        return False
+
+    # Tokens locales de contingencia nunca deben validarse contra Keycloak.
+    if claims.get("auth_provider") == "local":
         return False
 
     iss = claims.get("iss")
@@ -54,8 +59,22 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInToken:
     )
 
     if not _looks_like_keycloak_token(token):
-        logger.warning("Token no OIDC rechazado (legacy deshabilitado)")
-        raise credentials_exception
+        try:
+            payload = decode_access_token(token)
+            user_id = payload.get("sub")
+            role = payload.get("role")
+            token_type = payload.get("type")
+
+            if token_type == "refresh":
+                raise credentials_exception
+
+            if not user_id or role not in {"student", "tutor", "coordinator"}:
+                raise credentials_exception
+
+            return UserInToken(id=str(user_id), role=role)
+        except (JWTError, HTTPException):
+            logger.warning("Token no OIDC inválido")
+            raise credentials_exception
 
     if not is_keycloak_available():
         logger.error("Keycloak no disponible para validar token")
@@ -101,7 +120,7 @@ def require_role(*allowed_roles: str):
     Postcondiciones (del diseño):
     - Si user.role in allowed_roles → retorna UserInToken
     - Si user.role NOT in allowed_roles → lanza HTTPException(403)
-    - Regla crítica: tutores que intentan acceder a /logbook o /incidents reciben 403, no 404
+    - Los routers definen el alcance final por endpoint (incluyendo permisos acotados para tutor)
     """
     async def role_checker(current_user: UserInToken = Depends(get_current_user)) -> UserInToken:
         if current_user.role not in allowed_roles:

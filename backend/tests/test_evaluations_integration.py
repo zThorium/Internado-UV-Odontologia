@@ -29,6 +29,9 @@ from app.models.assignment import Assignment
 from app.models.user import User
 
 
+pytestmark = pytest.mark.integration
+
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -94,8 +97,8 @@ def _eval_payload(student_id: uuid.UUID, assignment_id: uuid.UUID) -> dict:
         "period_label": "Semana 1",
         "overall_comment": "Buen desempeño",
         "items": [
-            {"dimension": "Actitud", "score": "achieved", "comment": "Excelente"},
-            {"dimension": "Técnica", "score": "in_progress", "comment": None},
+            {"dimension": "Actitud", "score": 5, "comment": "Excelente"},
+            {"dimension": "Técnica", "score": 3, "comment": None},
         ],
     }
 
@@ -359,7 +362,7 @@ def test_p1_unassigned_student_evaluation_returns_403(
                         "period_label": "Semana 1",
                         "overall_comment": None,
                         "items": [
-                            {"dimension": "Actitud", "score": "achieved", "comment": None}
+                            {"dimension": "Actitud", "score": 5, "comment": None}
                         ],
                     },
                     headers=_auth(str(tutor_id), "tutor"),

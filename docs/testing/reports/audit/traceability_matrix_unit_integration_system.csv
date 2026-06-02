@@ -1,0 +1,23 @@
+tipo,modulo,test_file,casos,requisito_funcional_cubierto,estado,evidencia_ejecucion
+unit,Autenticacion y Dependencias,tests/test_deps.py,10,Resolucion de usuario actual y validacion de claims OIDC/JWT en dependencias.,PASS,backend/reports/testing/unit/junit.xml
+unit,IAM Keycloak,tests/test_keycloak_client_unit.py,21,"Cliente IAM Keycloak: token, roles, admin API y manejo de errores.",PASS,backend/reports/testing/unit/junit.xml
+unit,Autorizacion por Rol,tests/test_pbt_role_privacy.py,5,Invariantes de privacidad y autorizacion entre roles con pruebas property-based.,PASS,backend/reports/testing/unit/junit.xml
+unit,Catalogo de Procedimientos,tests/test_procedure_catalog_unit.py,9,Normalizacion de nivel de atencion y catalogo de procedimientos permitidos.,PASS,backend/reports/testing/unit/junit.xml
+unit,Servicios de Seguridad,tests/test_recaptcha_unit.py,4,Validacion de captcha y comportamiento fail-open ante error de red.,PASS,backend/reports/testing/unit/junit.xml
+unit,Autorizacion por Rol,tests/test_require_role.py,18,Control de acceso por rol en endpoints protegidos.,PASS,backend/reports/testing/unit/junit.xml
+unit,Seguridad,tests/test_security.py,13,"Hash de contrasenas y tokens JWT (creacion, validacion, expiracion, tampering).",PASS,backend/reports/testing/unit/junit.xml
+unit,Bienestar,tests/test_wellbeing_unit.py,5,Reglas de alertas de bienestar (red/yellow/none) segun historial semanal.,PASS,backend/reports/testing/unit/junit.xml
+integration,Alertas Tempranas,tests/test_alerts_integration.py,2,"Flujo de alertas por incidentes, resumen y resolucion por coordinacion.",PASS,backend/reports/testing/integration/junit.xml
+integration,Asistencia,tests/test_attendance_integration.py,5,"Registro, duplicados, actualizacion y estadisticas de asistencia por rol.",PASS,backend/reports/testing/integration/junit.xml
+integration,Autenticacion,tests/test_auth_integration.py,7,"Recuperacion de clave, onboarding y login con disponibilidad IAM.",PASS,backend/reports/testing/integration/junit.xml
+integration,Autenticacion,tests/test_auth_oauth_integration.py,5,"Callback OAuth, refresh/logout y alta de usuario via Keycloak.",PASS,backend/reports/testing/integration/junit.xml
+integration,Dashboard y Coordinacion,tests/test_dashboard_advanced_integration.py,4,"Tendencias, actividad reciente, metricas y operaciones avanzadas de dashboard.",PASS,backend/reports/testing/integration/junit.xml
+integration,Dashboard y Coordinacion,tests/test_dashboard_integration.py,3,"Cohortes, asignaciones y consultas base de dashboard de coordinacion.",PASS,backend/reports/testing/integration/junit.xml
+integration,Evaluaciones,tests/test_evaluations_integration.py,7,Evaluaciones por tutor asignado y restricciones de visibilidad por rol.,PASS,backend/reports/testing/integration/junit.xml
+integration,Incidentes,tests/test_incidents_integration.py,12,"Creacion, consulta, cambio de estado y respuesta de incidentes.",PASS,backend/reports/testing/integration/junit.xml
+integration,Bitacora,tests/test_logbook_integration.py,12,Bitacora semanal: ciclo create/edit/review y reglas de privacidad/duplicados.,PASS,backend/reports/testing/integration/junit.xml
+integration,Bitacora,tests/test_logbook_router_extra_integration.py,2,Contexto de bitacora y reglas de eliminacion segun estado.,PASS,backend/reports/testing/integration/junit.xml
+integration,Bitacora y Bienestar,tests/test_logbook_wellbeing_integration.py,1,"Endpoints de bienestar: historial, resumen, listado y resolucion de alertas.",PASS,backend/reports/testing/integration/junit.xml
+integration,Bitacora,tests/test_pbt_logbook.py,2,Invariantes property-based de privacidad sobre bitacora.,PASS,backend/reports/testing/integration/junit.xml
+integration,Bitacora y Validacion Tutor,tests/test_tutor_logbook_validation_integration.py,3,"Validacion tutor de bitacora y ciclo de alerta no_tutor_validation.",PASS,backend/reports/testing/integration/junit.xml
+system,Sistema E2E,tests/test_system_e2e.py,3,"Tres escenarios E2E: flujo clinico completo, fronteras de rol y cierre de alerta no_tutor_validation tras validacion tutor.",PASS,backend/reports/testing/system/junit.xml

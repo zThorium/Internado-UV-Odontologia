@@ -72,7 +72,7 @@ export default function CreateUsersPage() {
 
           {error && <div className="alert alert-error" style={{ marginBottom: '1rem' }}>{error}</div>}
 
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <form onSubmit={handleSubmit} className="form-grid-2">
             {/* Email */}
             <div className="field">
               <label className="label">Email</label>

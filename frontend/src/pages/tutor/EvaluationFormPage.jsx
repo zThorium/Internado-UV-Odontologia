@@ -5,27 +5,34 @@ import { AlertError } from '../../components/ui/Alert'
 import { ArrowLeft, Send, CheckCircle } from 'lucide-react'
 
 const DIMENSIONS = [
-  'Actitud profesional',
-  'Habilidades clínicas',
-  'Comunicación con pacientes',
-  'Puntualidad y asistencia',
-  'Trabajo en equipo',
+  'Diagnóstico y evaluación de riesgo',
+  'Solicitud de exámenes e indicaciones',
+  'Planificación y diseño del plan de tratamiento',
+  'Realización de procedimientos',
+  'Manejo de emergencias',
+  'Salud pública y administración',
+  'Competencias genéricas (trabajo en equipo, comunicación, etc.)',
 ]
 
 const SCALE = [
-  { value: 'achieved',     label: 'Logrado',      cls: 'selected-green' },
-  { value: 'in_progress',  label: 'En progreso',  cls: 'selected-yellow' },
-  { value: 'not_achieved', label: 'No logrado',   cls: 'selected-red' },
+  { value: 1, label: '1', cls: 'selected-red' },
+  { value: 2, label: '2', cls: 'selected-red' },
+  { value: 3, label: '3', cls: 'selected-yellow' },
+  { value: 4, label: '4', cls: 'selected-green' },
+  { value: 5, label: '5', cls: 'selected-green' },
 ]
 
 export default function EvaluationFormPage() {
   const { assignment_id } = useParams()
   const [searchParams] = useSearchParams()
   const student_id = searchParams.get('student_id')
+  const studentName = searchParams.get('name') || 'Estudiante'
+  const tutorName = searchParams.get('tutor') || 'Tutor clínico'
+  const clinicalSite = searchParams.get('site') || 'Establecimiento no informado'
   const navigate = useNavigate()
 
   const [ratings, setRatings] = useState({})
-  const [periodLabel, setPeriodLabel] = useState('')
+  const [periodLabel, setPeriodLabel] = useState('semester_1')
   const [overallComment, setOverallComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
@@ -64,22 +71,40 @@ export default function EvaluationFormPage() {
 
       <div style={{ marginBottom: '1.75rem' }}>
         <h2 className="section-title">Formulario de evaluación</h2>
-        <p className="section-subtitle">Completa todos los criterios para enviar la evaluación</p>
+        <p className="section-subtitle">Completa la rúbrica periódica para dejar registro objetivo del desempeño</p>
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-ink-500)' }}>Estudiante</p>
+              <p style={{ margin: '0.15rem 0 0', fontWeight: 600, color: 'var(--color-ink-800)' }}>{studentName}</p>
+            </div>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-ink-500)' }}>Tutor clínico</p>
+              <p style={{ margin: '0.15rem 0 0', fontWeight: 600, color: 'var(--color-ink-800)' }}>{tutorName}</p>
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-ink-500)' }}>Establecimiento de salud</p>
+              <p style={{ margin: '0.15rem 0 0', fontWeight: 600, color: 'var(--color-ink-800)' }}>{clinicalSite}</p>
+            </div>
+          </div>
+        </div>
+
         {/* Periodo */}
         <div className="card" style={{ padding: '1.5rem' }}>
           <div className="field">
             <label className="label">Periodo <span style={{ color: 'var(--color-err-text)' }}>*</span></label>
-            <input
-              type="text"
+            <select
               value={periodLabel}
               onChange={(e) => setPeriodLabel(e.target.value)}
-              placeholder="Ej: Semestre 1 - 2025"
               required
               className="input"
-            />
+            >
+              <option value="semester_1">Semestre 1</option>
+              <option value="semester_2">Semestre 2</option>
+            </select>
           </div>
         </div>
 

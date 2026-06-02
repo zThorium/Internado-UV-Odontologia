@@ -1,0 +1,96 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resumen Pruebas con Usuarios</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: "Source Sans 3", "Segoe UI", sans-serif;
+      background: linear-gradient(130deg, #fefce8 0%, #ecfeff 100%);
+      color: #1f2937;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+    header {
+      padding: 20px;
+      background: linear-gradient(120deg, #fef9c3 0%, #dbeafe 100%);
+      border-bottom: 1px solid #e5e7eb;
+    }
+    h1 { margin: 0; font-size: 1.4rem; }
+    .meta { color: #6b7280; margin-top: 6px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; padding: 16px 20px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; }
+    .k { color: #6b7280; font-size: 0.85rem; }
+    .v { font-size: 1.35rem; font-weight: 700; margin-top: 4px; }
+    .metrics { padding: 0 20px 16px; }
+    .metric { margin-bottom: 10px; }
+    .line { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .bar-bg { height: 10px; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
+    .bar { height: 100%; background: #0ea5e9; }
+    table { width: calc(100% - 40px); margin: 0 20px 20px; border-collapse: collapse; }
+    th, td { border-top: 1px solid #e5e7eb; padding: 8px; text-align: left; font-size: 0.9rem; }
+    thead th { border-top: none; background: #f9fafb; color: #6b7280; font-size: 0.8rem; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Pruebas con Usuarios Simulados</h1>
+      <div class="meta">Generado: 2026-04-14 18:25:42 UTC</div>
+    </header>
+
+    <section class="grid">
+      <article class="card"><div class="k">Participantes</div><div class="v">10</div></article>
+      <article class="card"><div class="k">Satisfaccion promedio</div><div class="v">4.3/5</div></article>
+      <article class="card"><div class="k">Completitud bitacora</div><div class="v">100.0%</div></article>
+      <article class="card"><div class="k">Completitud asistencia</div><div class="v">90.0%</div></article>
+    </section>
+
+    <section class="metrics">
+      
+            <div class="metric">
+              <div class="line"><strong>Bitacora</strong><span>100.0%</span></div>
+              <div class="bar-bg"><div class="bar" style="width:100.0%"></div></div>
+            </div>
+            
+            <div class="metric">
+              <div class="line"><strong>Asistencia</strong><span>90.0%</span></div>
+              <div class="bar-bg"><div class="bar" style="width:90.0%"></div></div>
+            </div>
+            
+            <div class="metric">
+              <div class="line"><strong>Incidente</strong><span>90.0%</span></div>
+              <div class="bar-bg"><div class="bar" style="width:90.0%"></div></div>
+            </div>
+            
+            <div class="metric">
+              <div class="line"><strong>Evaluacion</strong><span>90.0%</span></div>
+              <div class="bar-bg"><div class="bar" style="width:90.0%"></div></div>
+            </div>
+            
+    </section>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Perfil</th><th>Logbook</th><th>Attendance</th><th>Incident</th><th>Evaluation</th><th>Satisfaccion</th><th>Comentarios</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>P01</td><td>student</td><td>1</td><td>1</td><td>1</td><td>1</td><td>5.0</td><td>Flujo claro en todas las pantallas</td></tr><tr><td>P02</td><td>student</td><td>1</td><td>1</td><td>1</td><td>0</td><td>4.0</td><td>Dificultad menor en seccion de evaluacion</td></tr><tr><td>P03</td><td>student</td><td>1</td><td>1</td><td>1</td><td>1</td><td>5.0</td><td>Interfaz intuitiva</td></tr><tr><td>P04</td><td>tutor</td><td>1</td><td>1</td><td>0</td><td>1</td><td>4.0</td><td>Falta de mensaje contextual en incidente</td></tr><tr><td>P05</td><td>tutor</td><td>1</td><td>1</td><td>1</td><td>1</td><td>4.0</td><td>Buen rendimiento general</td></tr><tr><td>P06</td><td>coordinator</td><td>1</td><td>1</td><td>1</td><td>1</td><td>5.0</td><td>Panel de control claro</td></tr><tr><td>P07</td><td>coordinator</td><td>1</td><td>1</td><td>1</td><td>1</td><td>4.0</td><td>Se sugiere mas ayuda contextual</td></tr><tr><td>P08</td><td>student</td><td>1</td><td>0</td><td>1</td><td>1</td><td>3.0</td><td>Confusion puntual en asistencia</td></tr><tr><td>P09</td><td>tutor</td><td>1</td><td>1</td><td>1</td><td>1</td><td>4.0</td><td>Sin bloqueos funcionales</td></tr><tr><td>P10</td><td>coordinator</td><td>1</td><td>1</td><td>1</td><td>1</td><td>5.0</td><td>Flujo completo satisfactorio</td></tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

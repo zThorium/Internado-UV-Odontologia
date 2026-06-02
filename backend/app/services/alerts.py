@@ -14,6 +14,10 @@ Reglas de detección:
     AMARILLO — tutor no evaluó al estudiante en 3 semanas
     ROJO     — tutor no evaluó al estudiante en 5+ semanas
 
+    no_tutor_validation:
+        AMARILLO — bitácora sin validación de tutor por 2 semanas
+        ROJO     — bitácora sin validación de tutor por 4+ semanas
+
   absences:
     AMARILLO — más de 2 ausencias injustificadas en el mes actual
     ROJO     — más de 4 ausencias injustificadas en el mes actual
@@ -28,11 +32,13 @@ from datetime import date, datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
+from app.core.config import settings
 from app.models.assignment import Assignment
 from app.models.attendance import AttendanceRecord
 from app.models.evaluation import Evaluation
 from app.models.incident import Incident
 from app.models.logbook import LogbookEntry
+from app.models.logbook_validation import LogbookValidation
 from app.models.student_alert import StudentAlert
 from app.models.user import User
 from app.schemas.alerts import (
@@ -133,6 +139,31 @@ async def _check_no_evaluation(
     return None
 
 
+async def _check_no_tutor_validation(student_id: UUID, db: AsyncSession) -> str | None:
+    threshold_weeks = max(1, settings.TUTOR_LOGBOOK_VALIDATION_ALERT_WEEKS)
+    result = await db.execute(
+        select(LogbookEntry.week_start_date)
+        .outerjoin(LogbookValidation, LogbookValidation.entry_id == LogbookEntry.id)
+        .where(
+            LogbookEntry.student_id == student_id,
+            LogbookValidation.id.is_(None),
+        )
+        .order_by(LogbookEntry.week_start_date.asc())
+    )
+    unvalidated_dates = [row[0] for row in result.fetchall()]
+    if not unvalidated_dates:
+        return None
+
+    oldest_unvalidated = unvalidated_dates[0]
+    overdue_weeks = _weeks_since(oldest_unvalidated)
+
+    if overdue_weeks >= threshold_weeks + 2:
+        return "red"
+    if overdue_weeks >= threshold_weeks:
+        return "yellow"
+    return None
+
+
 async def _check_absences(student_id: UUID, db: AsyncSession) -> str | None:
     month_start = _month_start()
     result = await db.execute(
@@ -172,6 +203,8 @@ _DESCRIPTIONS = {
     ("low_wellbeing", "red"):    "Ha reportado una semana difícil 2 veces seguidas, o 3 veces en las últimas 5 semanas",
     ("no_evaluation", "yellow"): "El tutor no ha enviado una evaluación en 3 semanas",
     ("no_evaluation", "red"):    "El tutor no ha enviado una evaluación en 5 semanas o más",
+    ("no_tutor_validation", "yellow"): "La bitácora no fue validada por tutor en el periodo esperado",
+    ("no_tutor_validation", "red"): "La bitácora acumula más de 4 semanas sin validación de tutor",
     ("absences", "yellow"): "Más de 2 ausencias injustificadas este mes",
     ("absences", "red"):    "Más de 4 ausencias injustificadas este mes",
     ("incident_report", "red"): "El estudiante ha enviado un reporte de incidente",
@@ -181,6 +214,7 @@ _TYPE_LABELS = {
     "no_bitacora":    "Bitácora",
     "low_wellbeing":  "Bienestar",
     "no_evaluation":  "Evaluación",
+    "no_tutor_validation": "Validación de tutor",
     "absences":       "Asistencia",
     "incident_report": "Incidente",
 }
@@ -224,6 +258,7 @@ async def run_alert_evaluation(db: AsyncSession) -> dict:
             "no_bitacora":    await _check_no_bitacora(student.id, assignment, db),
             "low_wellbeing":  await _check_low_wellbeing(student.id, db),
             "no_evaluation":  await _check_no_evaluation(student.id, assignment, db),
+            "no_tutor_validation": await _check_no_tutor_validation(student.id, db),
             "absences":       await _check_absences(student.id, db),
             "incident_report": await _check_incident_report(student.id, db),
         }

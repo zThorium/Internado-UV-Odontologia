@@ -3,13 +3,18 @@ from uuid import UUID
 from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 
 from app.models.attendance import AttendanceRecord
 from app.models.assignment import Assignment
 from app.schemas.attendance import AttendanceCreate, AttendanceUpdate, AttendanceStats
 from app.schemas.auth import UserInToken
+
+
+def _semester_period(attendance_date) -> str:
+    return "semester_1" if attendance_date.month <= 6 else "semester_2"
 
 
 async def create_attendance(
@@ -42,7 +47,14 @@ async def create_attendance(
         observation=data.observation,
     )
     db.add(record)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Ya existe un registro de asistencia para esta fecha",
+        )
     await db.refresh(record)
     return record
 
@@ -133,10 +145,47 @@ async def get_attendance_stats(
     justified = sum(1 for r in records if r.status == "justified")
     rate = round((present / total * 100), 1) if total > 0 else 0.0
 
+    by_period_map = {
+        "semester_1": {"period": "semester_1", "total": 0, "present": 0, "absent": 0, "justified": 0},
+        "semester_2": {"period": "semester_2", "total": 0, "present": 0, "absent": 0, "justified": 0},
+    }
+    by_week_map: dict[str, dict] = {}
+
+    for record in records:
+        period = _semester_period(record.date)
+        week_info = record.date.isocalendar()
+        week_label = f"{week_info.year}-W{week_info.week:02d}"
+
+        period_bucket = by_period_map[period]
+        period_bucket["total"] += 1
+        period_bucket[record.status] += 1
+
+        if week_label not in by_week_map:
+            by_week_map[week_label] = {
+                "week_label": week_label,
+                "period": period,
+                "total": 0,
+                "present": 0,
+                "absent": 0,
+                "justified": 0,
+            }
+
+        week_bucket = by_week_map[week_label]
+        week_bucket["total"] += 1
+        week_bucket[record.status] += 1
+
+    by_period = [
+        by_period_map["semester_1"],
+        by_period_map["semester_2"],
+    ]
+    by_week = [by_week_map[key] for key in sorted(by_week_map.keys())]
+
     return AttendanceStats(
         total=total,
         present=present,
         absent=absent,
         justified=justified,
         attendance_rate=rate,
+        by_period=by_period,
+        by_week=by_week,
     )
