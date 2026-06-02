@@ -758,6 +758,12 @@
     font-family: var(--font-body) !important;
   }
 
+  :root[data-theme='dark'] .uv-tour-popover {
+    --dp-bg-color:     var(--color-bg-surface) !important;
+    --dp-text-color:   var(--color-ink-900) !important;
+    --dp-border-color: var(--color-earth-300) !important;
+  }
+
   .uv-tour-popover .driver-popover-title {
     font-family: var(--font-display) !important;
     font-size: 1.0625rem !important;
