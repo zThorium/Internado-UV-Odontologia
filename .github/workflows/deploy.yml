@@ -1,0 +1,81 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy via SSH
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      DEPLOY_REMOTE_DIR: /opt/internado-uv/app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write production env file
+        run: printf '%s\n' "$ENV_PROD" > .env.prod
+        env:
+          ENV_PROD: ${{ secrets.ENV_PROD }}
+
+      - name: Validate production env file
+        run: ./scripts/deploy/aws/check-env-prod.sh .env.prod
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+
+      - name: Prepare remote directory
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "mkdir -p '${{ env.DEPLOY_REMOTE_DIR }}'"
+
+      - name: Sync application code
+        run: |
+          rsync -az --delete \
+            --exclude='.git/' \
+            --exclude='.venv/' \
+            --exclude='backend/.venv/' \
+            --exclude='frontend/node_modules/' \
+            --exclude='frontend/dist/' \
+            --exclude='backend/reports/' \
+            --exclude='backend/.pytest_cache/' \
+            --exclude='backend/.coverage' \
+            --exclude='backend/coverage.xml' \
+            --exclude='__pycache__/' \
+            --exclude='*.pyc' \
+            --exclude='.DS_Store' \
+            --exclude='.env' \
+            --exclude='.env.prod' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
+            ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_REMOTE_DIR }}/"
+
+      - name: Copy production env file
+        run: |
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            .env.prod \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_REMOTE_DIR }}/.env.prod"
+
+      - name: Run remote deploy
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "cd '${{ env.DEPLOY_REMOTE_DIR }}' && \
+             chmod +x scripts/deploy/aws/check-env-prod.sh scripts/deploy/aws/remote-deploy.sh && \
+             ./scripts/deploy/aws/remote-deploy.sh --env-file .env.prod"

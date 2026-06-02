@@ -87,8 +87,38 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
 
 Para nuevos cambios de codigo, ejecuta nuevamente `deploy-via-ssh.sh`.
 
+## 6) Despliegue automatico con GitHub Actions
+
+El repositorio incluye workflows en `.github/workflows/`:
+
+| Workflow | Disparador | Funcion |
+|----------|------------|---------|
+| `ci.yml` | Pull request a `main` | `pytest` (backend) + `npm run build` (frontend) |
+| `deploy.yml` | Push a `main` | CI + rsync/SSH a EC2 + `remote-deploy.sh` |
+
+El build de imagenes Docker ocurre **en la EC2 (ARM64)**, no en el runner de GitHub, para compatibilidad con instancias `t4g.*`.
+
+### Configuracion previa (una vez)
+
+Sigue el checklist completo en [github-actions-setup.md](./github-actions-setup.md):
+
+1. Verificar SSH, bootstrap y primer deploy manual (Fase 0)
+2. Abrir puerto 22 a los CIDR de GitHub Actions en el Security Group (Fase 1)
+3. Crear secrets: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `ENV_PROD` (Fase 2)
+
+### Flujo en cada push a `main`
+
+```text
+push main → CI (tests + build) → rsync a /opt/internado-uv/app → scp .env.prod → remote-deploy.sh
+```
+
+### Re-ejecutar
+
+En GitHub: **Actions** → selecciona el workflow **Deploy to EC2** → **Re-run all jobs** en un run fallido, o haz un nuevo push a `main`.
+
 ## Notas
 
 - El frontend usa variables `VITE_*` en tiempo de build.
 - El backend toma el resto de variables desde `.env.prod`.
-- Si usas dominio real, configura DNS y TLS (Nginx/ALB/CloudFront) en una etapa posterior.
+- Si usas dominio real, configurar DNS y TLS (Nginx/ALB/CloudFront) en una etapa posterior.
+- La IP publica de la EC2 puede cambiar al reiniciar; conviene asignar una **Elastic IP** y actualizar el secret `SSH_HOST`.
